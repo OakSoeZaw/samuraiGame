@@ -8,7 +8,7 @@ public class Controls {
     private int attack;
     private int block;
 
-    public Controls(int up, int down, int left, int right, int attack, int block){
+    public Controls(int up, int down, int left, int right, int attack, int block) {
         this.up = up;
         this.down = down;
         this.left = left;
@@ -17,8 +17,9 @@ public class Controls {
         this.block = block;
     }
 
-    public String toString(){
-        return "Controls (up: " + up + ", down: " + down + ", right: " + right +
-        " left:" + left
+    public String toString() {
+        return "Controls (up: " + up + ", down: " + down +
+                " left:" + left + ", right: " + right + ", attack" + attack + ", block:" +
+                block + ")";
     }
 }
