@@ -17,15 +17,8 @@ public class Controls {
         this.block = block;
     }
 
-<<<<<<< HEAD
-    public String toString() {
-        return "Controls (up: " + up + ", down: " + down +
-                " left:" + left + ", right: " + right + ", attack" + attack + ", block:" +
-                block + ")";
-=======
     public String toString(){
         return ("Controls (up: " + up + ", down: " + down + ", right: " + right +
         " left:" + left );
->>>>>>> 89c9799 (Added the start screen)
     }
 }

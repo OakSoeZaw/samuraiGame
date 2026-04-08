@@ -35,5 +35,35 @@ public class Samurai {
         this.health = 100;
         this.canTakeDamage = true;
         this.facingLeft = false;
+
+        hitBox = new Rectangle(x, y, width, height);
+        attackHitBox = new Rectangle();
+    }
+
+    public void update(float delta){
+        if(!isAlive) return;
+
+        handleMovement(delta);
+        handleAttack(delta);
+        updateHitBox();
+
+    }
+
+    private void handleMovement(float delta){
+
+    }
+
+    private void handleAttack(float delta){
+
+    }
+
+    private void updateHitBox(){
+        hitBox.setPosition(x, y);
+
+        if(facingLeft){
+            attackHitBox.set(x - 20, y + 10, 20, 20);
+        }else{
+            attackHitBox.set(x + width, y + 10, 20, 20);
+        }
     }
 }

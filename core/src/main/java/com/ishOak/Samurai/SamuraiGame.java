@@ -10,29 +10,17 @@ import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
 import com.badlogic.gdx.graphics.g2d.freetype.FreeTypeFontGenerator;
 
-/** {@link com.badlogic.gdx.ApplicationListener} implementation shared by all platforms. */
-<<<<<<< HEAD
-public class Main extends ApplicationAdapter {
-    
-    @Override
-    public void create(){}
-
-    @Override
-    public void render(){}
-
-    
-}
-=======
+/**
+ * {@link com.badlogic.gdx.ApplicationListener} implementation shared by all
+ * platforms.
+ */
 public class SamuraiGame extends Game {
     private SpriteBatch batch;
     private BitmapFont font;
 
-
-
     @Override
     public void create() {
         batch = new SpriteBatch();
-
 
         FreeTypeFontGenerator generator = new FreeTypeFontGenerator(Gdx.files.internal("CherryCreamSoda-Regular.ttf"));
         FreeTypeFontGenerator.FreeTypeFontParameter parameter = new FreeTypeFontGenerator.FreeTypeFontParameter();
@@ -57,10 +45,7 @@ public class SamuraiGame extends Game {
         return batch;
     }
 
-
-
     public BitmapFont getFont() {
         return font;
     }
 }
->>>>>>> 89c9799 (Added the start screen)
