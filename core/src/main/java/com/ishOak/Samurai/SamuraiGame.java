@@ -11,18 +11,7 @@ import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
 import com.badlogic.gdx.graphics.g2d.freetype.FreeTypeFontGenerator;
 
 /** {@link com.badlogic.gdx.ApplicationListener} implementation shared by all platforms. */
-<<<<<<< HEAD
-public class Main extends ApplicationAdapter {
-    
-    @Override
-    public void create(){}
 
-    @Override
-    public void render(){}
-
-    
-}
-=======
 public class SamuraiGame extends Game {
     private SpriteBatch batch;
     private BitmapFont font;
@@ -63,4 +52,4 @@ public class SamuraiGame extends Game {
         return font;
     }
 }
->>>>>>> 89c9799 (Added the start screen)
+
