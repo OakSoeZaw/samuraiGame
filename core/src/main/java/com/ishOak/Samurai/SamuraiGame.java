@@ -35,9 +35,9 @@ public class SamuraiGame extends Game {
 
     @Override
     public void dispose() {
-        super.dispose();
         batch.dispose();
         font.dispose();
+        super.dispose();
 
     }
 
