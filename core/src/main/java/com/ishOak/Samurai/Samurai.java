@@ -14,7 +14,7 @@ public class Samurai {
 
     //combat
     private float health;
-    private boolean facingLeft = false;
+    public boolean facingLeft = false;
     private boolean isAttacking;
     private boolean isAlive;
     private boolean isBlocking;
@@ -38,6 +38,7 @@ public class Samurai {
         this.x = x;
         this.y = y;
         this.controls = controls;
+        this.speed = 200f;
 
         this.width = 32;
         this.height = 48;
@@ -71,6 +72,7 @@ public class Samurai {
         else if(Gdx.input.isKeyPressed(controls.right)){
             moveRight(delta);
             setCurrentState(State.RUNNING);
+
         }else {
             setCurrentState(State.IDLE);
         }

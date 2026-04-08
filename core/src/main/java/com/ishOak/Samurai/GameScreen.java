@@ -8,6 +8,7 @@ import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.Animation;
 import com.badlogic.gdx.graphics.g2d.BitmapFont;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
+import com.badlogic.gdx.graphics.g2d.TextureRegion;
 
 
 public class GameScreen implements Screen{
@@ -44,8 +45,7 @@ public class GameScreen implements Screen{
         // player 2 with arrow keys and L to attack
         Controls controls2 = new Controls(Input.Keys.UP, Input.Keys.DOWN, Input.Keys.LEFT, Input.Keys.RIGHT, Input.Keys.L, Input.Keys.K);
 
-        player1 = new Samurai(100, 100, controls1, animator1);
-        player2 = new Samurai(600, 0, controls2, animator2);
+
 
         //load texture for player1
         player1AttackTex = new Texture("p1_attack.png");
@@ -60,6 +60,9 @@ public class GameScreen implements Screen{
 
         animator1 = new SamuraiAnimator(player1RunTex, player1AttackTex, player1DeathTex, player1IdleTex);
         animator2 = new SamuraiAnimator(player2RunTex, player2AttackTex,player2DeathTex, player2IdleTex);
+
+        player1 = new Samurai(100, 20, controls1, animator1);
+        player2 = new Samurai(300, 20, controls2, animator2);
 
         gameOver = false;
 
@@ -106,10 +109,25 @@ public class GameScreen implements Screen{
         if(!player1.isAlive() || !player2.isAlive()){
             gameOver = true;
             // need to make gameOver Screen;
+            System.out.println("Game ended");
         }
     }
 
     private void drawPlayers(){
+        TextureRegion frame1 = animator1.getFrame(player1.getState());
+        TextureRegion frame2 = animator2.getFrame(player2.getState());
+
+        if (player1.facingLeft && !frame1.isFlipX()) {
+            frame1.flip(true, false);
+        } else if (!player1.facingLeft && frame1.isFlipX()) {
+            frame1.flip(true, false);
+        }
+
+        if (player2.facingLeft && !frame2.isFlipX()) {
+            frame2.flip(true, false);
+        } else if (!player2.facingLeft && frame2.isFlipX()) {
+            frame2.flip(true, false);
+        }
         batch.draw(animator1.getFrame(player1.getState()), player1.x, player1.y);
         batch.draw(animator2.getFrame(player2.getState()), player2.x, player2.y);
     }
@@ -118,10 +136,6 @@ public class GameScreen implements Screen{
         font.draw(batch, "HP:" + (int) player1.getHeatlh(), 20, 580);
         font.draw(batch, "HP:" + (int) player2.getHeatlh(), 620, 580);
     }
-
-
-
-
 
 
 
