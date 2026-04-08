@@ -153,4 +153,10 @@ public class Samurai {
     public boolean isAlive(){
         return isAlive;
     }
+
+    public State getState(){
+        if(!isAlive) return State.DYING;
+        if (isAttacking) return State.ATTACKING;
+        return State.RUNNING;
+    }
 }
