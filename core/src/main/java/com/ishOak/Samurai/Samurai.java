@@ -1,8 +1,13 @@
 package com.ishOak.Samurai;
 
 import com.badlogic.gdx.math.Rectangle;
+import com.badlogic.gdx.Gdx;
+import com.badlogic.gdx.math.MathUtils;
 
 public class Samurai {
+
+    public enum State{RUNNING, DYING, ATTACKING};
+
     public float x, y;
     private float speed;
     private float width, height;
@@ -12,6 +17,9 @@ public class Samurai {
     private boolean facingLeft = false;
     private boolean isAttacking;
     private boolean isAlive;
+    private boolean isBlocking;
+
+    private boolean isAttackActive;
 
     private boolean canTakeDamage;
     private float attackCoolDown;
@@ -21,8 +29,10 @@ public class Samurai {
     private Rectangle hitBox;
     private Rectangle attackHitBox;
 
+    public State currentState;
     private Controls controls;
-
+    
+    // 
     public Samurai(float x, float y, Controls controls){
         this.x = x;
         this.y = y;
@@ -50,11 +60,38 @@ public class Samurai {
     }
 
     private void handleMovement(float delta){
-
+        if(Gdx.input.isKeyPressed(controls.left)){
+            moveLeft(delta);
+        }
+        if(Gdx.input.isKeyPressed(controls.right)){
+            moveRight(delta);
+        }
+        // maybe jump and down afterwards
+        // if jump, need gravity to bring it down
+        x = MathUtils.clamp(x, 0, 800 - width);
     }
 
     private void handleAttack(float delta){
+        if(attackCoolDown > 0){
+            attackCoolDown -= delta;
+        }
 
+        if(isAttacking){
+            attackTimer += delta;
+
+            isAttackActive = attackTimer >= 0.1f && attackTimer <= 0.3f;
+
+            if(attackTimer >= 0.4f){
+                isAttacking = false;
+                isAttackActive = false;
+                attackTimer = 0;
+                attackCoolDown = 0.5f;
+            }
+
+            if(Gdx.input.isKeyJustPressed(controls.attack) && !isAttacking && attackCoolDown <= 0){
+                attack();
+            }
+        }
     }
 
     private void updateHitBox(){
@@ -65,5 +102,55 @@ public class Samurai {
         }else{
             attackHitBox.set(x + width, y + 10, 20, 20);
         }
+    }
+
+    private void takeDamage(int damage){
+        if(!isAlive || !canTakeDamage) return;
+
+        if(isBlocking) damage = damage / 2;
+
+        health -= damage;
+
+        if(health <= 0){
+            health = 0;
+            isAlive = false;
+        }
+    }
+
+    public boolean isHitBy(Rectangle otherAttackHitBox){
+        return hitBox.overlaps(otherAttackHitBox);
+    }
+
+    private void attack(){
+        if(!isAttacking){
+            isAttacking = true;
+            attackTimer = 0f;
+        }
+    }
+
+    public float getHeatlh(){
+        return health;
+    }
+
+    public Rectangle getHitBox(){
+        return hitBox;
+    }
+
+    public Rectangle getAttackHitBox(){
+        return attackHitBox;
+    }
+
+    public void moveRight(float delta){
+        x += speed * delta;
+        facingLeft = false;
+    }
+
+    public void moveLeft(float delta){
+        x -= speed * delta;
+        facingLeft = true;
+    }
+
+    public boolean isAlive(){
+        return isAlive;
     }
 }
