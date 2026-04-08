@@ -39,6 +39,12 @@ public class StartScreen extends ScreenAdapter
     @Override
     public void render(float deltaTime) {
 
+        if (Gdx.input.isKeyJustPressed(Input.Keys.SPACE)) {
+            game.setScreen(new GameScreen(game));
+            dispose();
+            return;
+        }
+
         ScreenUtils.clear(Color.BLACK);
 
         viewport.apply();
