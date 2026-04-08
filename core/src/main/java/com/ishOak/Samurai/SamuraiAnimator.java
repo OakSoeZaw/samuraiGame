@@ -13,7 +13,7 @@ public class SamuraiAnimator{
 
     private float stateTime = 0f;
 
-    public SamuraiAnimator(Texture run, Texture attack, Texture block,
+    public SamuraiAnimator(Texture run, Texture attack,
         Texture death, Texture idle){
         runAnimation = buildAnimation(run, 200, 200, 0.08f );
         attackAnimation = buildAnimation(attack, 200, 200, 0.08f );
@@ -38,7 +38,7 @@ public class SamuraiAnimator{
                 return runAnimation.getKeyFrame(stateTime,true);
             case ATTACKING :
                 return attackAnimation.getKeyFrame(stateTime, false);
-            case DYING : 
+            case DYING :
                 return deathAnimation.getKeyFrame(stateTime,false);
             default :
              return idleAnimation.getKeyFrame(stateTime, true);
@@ -51,5 +51,5 @@ public class SamuraiAnimator{
         TextureRegion[][] grid = TextureRegion.split(texture, frameWidth, frameHeight);
         return new Animation<>(frameDuration, grid[0]);
     }
-    
+
 }

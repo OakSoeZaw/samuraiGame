@@ -6,7 +6,7 @@ import com.badlogic.gdx.math.MathUtils;
 
 public class Samurai {
 
-    public enum State{RUNNING, DYING, ATTACKING};
+    public enum State{IDLE, RUNNING, DYING, ATTACKING};
 
     public float x, y;
     private float speed;
@@ -24,22 +24,26 @@ public class Samurai {
     private boolean canTakeDamage;
     private float attackCoolDown;
     private float attackTimer;
-    
+
 
     private Rectangle hitBox;
     private Rectangle attackHitBox;
 
-    public State currentState;
+    private State currentState;
+    private SamuraiAnimator animator;
     private Controls controls;
-    
-    // 
-    public Samurai(float x, float y, Controls controls){
+
+    //
+    public Samurai(float x, float y, Controls controls, SamuraiAnimator animator){
         this.x = x;
         this.y = y;
         this.controls = controls;
 
         this.width = 32;
         this.height = 48;
+
+        this.currentState = State.IDLE;
+        this.animator = animator;
 
         this.isAlive = true;
         this.health = 100;
@@ -62,9 +66,13 @@ public class Samurai {
     private void handleMovement(float delta){
         if(Gdx.input.isKeyPressed(controls.left)){
             moveLeft(delta);
+            setCurrentState(State.RUNNING);
         }
-        if(Gdx.input.isKeyPressed(controls.right)){
+        else if(Gdx.input.isKeyPressed(controls.right)){
             moveRight(delta);
+            setCurrentState(State.RUNNING);
+        }else {
+            setCurrentState(State.IDLE);
         }
         // maybe jump and down afterwards
         // if jump, need gravity to bring it down
@@ -78,19 +86,17 @@ public class Samurai {
 
         if(isAttacking){
             attackTimer += delta;
-
+            setCurrentState(State.ATTACKING);
             isAttackActive = attackTimer >= 0.1f && attackTimer <= 0.3f;
 
             if(attackTimer >= 0.4f){
                 isAttacking = false;
-                isAttackActive = false;
                 attackTimer = 0;
                 attackCoolDown = 0.5f;
             }
-
-            if(Gdx.input.isKeyJustPressed(controls.attack) && !isAttacking && attackCoolDown <= 0){
-                attack();
-            }
+        }
+        if(Gdx.input.isKeyJustPressed(controls.attack) && !isAttacking && attackCoolDown <= 0){
+            attack();
         }
     }
 
@@ -104,7 +110,7 @@ public class Samurai {
         }
     }
 
-    private void takeDamage(int damage){
+    public void takeDamage(int damage){
         if(!isAlive || !canTakeDamage) return;
 
         if(isBlocking) damage = damage / 2;
@@ -128,6 +134,13 @@ public class Samurai {
         }
     }
 
+    public void setCurrentState(State newState){
+        if( newState != this.currentState){
+            this.currentState = newState;
+            animator.resetStateTime();
+        }
+    }
+
     public float getHeatlh(){
         return health;
     }
@@ -145,6 +158,10 @@ public class Samurai {
         facingLeft = false;
     }
 
+    public boolean isAttackActive(){
+        return isAttackActive;
+    }
+
     public void moveLeft(float delta){
         x -= speed * delta;
         facingLeft = true;
@@ -155,8 +172,6 @@ public class Samurai {
     }
 
     public State getState(){
-        if(!isAlive) return State.DYING;
-        if (isAttacking) return State.ATTACKING;
-        return State.RUNNING;
+        return currentState;
     }
 }

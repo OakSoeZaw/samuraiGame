@@ -16,14 +16,14 @@ public class GameScreen implements Screen{
     private SpriteBatch batch;
     private BitmapFont font;
 
-    
+
     //Game State
     public boolean gameOver;
 
     //Textures
     private Texture player1IdleTex, player1RunTex, player1AttackTex, player1DeathTex;
     private Texture player2IdleTex, player2RunTex, player2AttackTex, player2DeathTex;
-    
+
     //Players
     private Samurai player1;
     private Samurai player2;
@@ -44,8 +44,8 @@ public class GameScreen implements Screen{
         // player 2 with arrow keys and L to attack
         Controls controls2 = new Controls(Input.Keys.UP, Input.Keys.DOWN, Input.Keys.LEFT, Input.Keys.RIGHT, Input.Keys.L, Input.Keys.K);
 
-        player1 = new Samurai(100, 100, controls1);
-        player2 = new Samurai(600, 0, controls2);
+        player1 = new Samurai(100, 100, controls1, animator1);
+        player2 = new Samurai(600, 0, controls2, animator2);
 
         //load texture for player1
         player1AttackTex = new Texture("p1_attack.png");
@@ -61,13 +61,69 @@ public class GameScreen implements Screen{
         animator1 = new SamuraiAnimator(player1RunTex, player1AttackTex, player1DeathTex, player1IdleTex);
         animator2 = new SamuraiAnimator(player2RunTex, player2AttackTex,player2DeathTex, player2IdleTex);
 
+        gameOver = false;
+
     }
 
     @Override
-    public void render(float delta){}
+    public void render(float delta){
+        Gdx.gl.glClearColor(0, 0, 0 , 1);
+        Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT);
 
-    
-    private void update(float delta){}
+        update(delta);
+        batch.begin();
+        drawPlayers();
+        drawHUD();
+        batch.end();
+    }
+    private void update(float delta){
+        if (gameOver) return;
+
+        player1.update(delta);
+        player2.update(delta);
+
+        animator1.update(delta);
+        animator2.update(delta);
+
+        checkCombat();
+        checkGameOver();
+    }
+
+    private void checkCombat(){
+        if(player2.isAttackActive()){
+            if(player1.isHitBy(player2.getAttackHitBox())){
+                player1.takeDamage(20);
+            }
+        }
+        if(player1.isAttackActive()){
+            if(player2.isHitBy(player1.getAttackHitBox())){
+                player2.takeDamage(20);
+            }
+        }
+    }
+
+    private void checkGameOver(){
+        if(!player1.isAlive() || !player2.isAlive()){
+            gameOver = true;
+            // need to make gameOver Screen;
+        }
+    }
+
+    private void drawPlayers(){
+        batch.draw(animator1.getFrame(player1.getState()), player1.x, player1.y);
+        batch.draw(animator2.getFrame(player2.getState()), player2.x, player2.y);
+    }
+
+    private void drawHUD(){
+        font.draw(batch, "HP:" + (int) player1.getHeatlh(), 20, 580);
+        font.draw(batch, "HP:" + (int) player2.getHeatlh(), 620, 580);
+    }
+
+
+
+
+
+
 
     @Override
     public void hide() {
