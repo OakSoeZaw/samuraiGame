@@ -29,8 +29,8 @@ public class SamuraiGame extends Game {
         font = generator.generateFont(parameter);
         generator.dispose();
 
-//        setScreen(new StartScreen(this));
-        setScreen(new GameScreen(this));
+        setScreen(new StartScreen(this));
+        //setScreen(new GameScreen(this));
     }
 
     @Override

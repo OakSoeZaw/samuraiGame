@@ -22,6 +22,7 @@ public class GameScreen implements Screen{
     public boolean gameOver;
 
     //Textures
+    private Texture bgTexture;
     private Texture player1IdleTex, player1RunTex, player1AttackTex, player1DeathTex;
     private Texture player2IdleTex, player2RunTex, player2AttackTex, player2DeathTex;
 
@@ -45,7 +46,8 @@ public class GameScreen implements Screen{
         // player 2 with arrow keys and L to attack
         Controls controls2 = new Controls(Input.Keys.UP, Input.Keys.DOWN, Input.Keys.LEFT, Input.Keys.RIGHT, Input.Keys.L, Input.Keys.K);
 
-
+        //load background texture
+        bgTexture=new Texture("bdg.png");
 
         //load texture for player1
         player1AttackTex = new Texture("p1_attack.png");
@@ -75,10 +77,16 @@ public class GameScreen implements Screen{
 
         update(delta);
         batch.begin();
+        drawBackground();
         drawPlayers();
         drawHUD();
         batch.end();
     }
+
+    private void drawBackground() {
+        batch.draw(bgTexture,0,0);
+    }
+
     private void update(float delta){
         if (gameOver) return;
 
