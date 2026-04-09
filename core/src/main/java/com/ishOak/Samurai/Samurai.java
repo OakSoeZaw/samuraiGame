@@ -78,7 +78,7 @@ public class Samurai {
         }
         // maybe jump and down afterwards
         // if jump, need gravity to bring it down
-        x = MathUtils.clamp(x, 0, 800 - width);
+        x = MathUtils.clamp(x, 0, 500 - width);
     }
 
     private void handleAttack(float delta){

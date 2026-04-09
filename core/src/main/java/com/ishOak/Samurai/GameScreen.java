@@ -33,6 +33,8 @@ public class GameScreen implements Screen{
     private SamuraiAnimator animator1;
     private SamuraiAnimator animator2;
 
+    boolean winner=false;//if false 2 is winner
+
     public GameScreen(SamuraiGame game){
         this.game = game;
         this.batch = game.getBatch();
@@ -81,6 +83,10 @@ public class GameScreen implements Screen{
         drawPlayers();
         drawHUD();
         batch.end();
+
+        if(gameOver){
+            game.setScreen(new GameOverScreen(game,winner));
+        }
     }
 
     private void drawBackground() {
@@ -116,6 +122,9 @@ public class GameScreen implements Screen{
     private void checkGameOver(){
         if(!player1.isAlive() || !player2.isAlive()){
             gameOver = true;
+            if(player1.isAlive()){
+              winner = true;
+            }
             // need to make gameOver Screen;
             System.out.println("Game ended");
         }
