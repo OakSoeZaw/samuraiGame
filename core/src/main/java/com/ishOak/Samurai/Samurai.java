@@ -6,13 +6,15 @@ import com.badlogic.gdx.math.MathUtils;
 
 public class Samurai {
 
-    public enum State{IDLE, RUNNING, DYING, ATTACKING};
+    public enum State {
+        IDLE, RUNNING, DYING, ATTACKING
+    };
 
     public float x, y;
     private float speed;
     private float width, height;
 
-    //combat
+    // combat
     private float health;
     public boolean facingLeft = false;
     private boolean isAttacking;
@@ -25,7 +27,6 @@ public class Samurai {
     private float attackCoolDown;
     private float attackTimer;
 
-
     private Rectangle hitBox;
     private Rectangle attackHitBox;
 
@@ -34,7 +35,7 @@ public class Samurai {
     private Controls controls;
 
     //
-    public Samurai(float x, float y, Controls controls, SamuraiAnimator animator){
+    public Samurai(float x, float y, Controls controls, SamuraiAnimator animator) {
         this.x = x;
         this.y = y;
         this.controls = controls;
@@ -55,8 +56,9 @@ public class Samurai {
         attackHitBox = new Rectangle();
     }
 
-    public void update(float delta){
-        if(!isAlive) return;
+    public void update(float delta) {
+        if (!isAlive)
+            return;
 
         handleMovement(delta);
         handleAttack(delta);
@@ -64,116 +66,118 @@ public class Samurai {
 
     }
 
-    private void handleMovement(float delta){
-        if(Gdx.input.isKeyPressed(controls.left)){
+    private void handleMovement(float delta) {
+        if(isAttacking) return;
+        if (Gdx.input.isKeyPressed(controls.left)) {
             moveLeft(delta);
             setCurrentState(State.RUNNING);
-        }
-        else if(Gdx.input.isKeyPressed(controls.right)){
+        } else if (Gdx.input.isKeyPressed(controls.right)) {
             moveRight(delta);
             setCurrentState(State.RUNNING);
 
-        }else {
+        } else {
             setCurrentState(State.IDLE);
         }
         // maybe jump and down afterwards
         // if jump, need gravity to bring it down
-        x = MathUtils.clamp(x, 0, 800 - width);
+        x = MathUtils.clamp(x, 32, 800 - width - 32);
     }
 
-    private void handleAttack(float delta){
-        if(attackCoolDown > 0){
+    private void handleAttack(float delta) {
+        if (attackCoolDown > 0) {
             attackCoolDown -= delta;
         }
 
-        if(isAttacking){
+        if (isAttacking) {
             attackTimer += delta;
             setCurrentState(State.ATTACKING);
             isAttackActive = attackTimer >= 0.1f && attackTimer <= 0.3f;
 
-            if(attackTimer >= 0.4f){
+            if (attackTimer >= 0.4f) {
                 isAttacking = false;
                 attackTimer = 0;
                 attackCoolDown = 0.5f;
             }
         }
-        if(Gdx.input.isKeyJustPressed(controls.attack) && !isAttacking && attackCoolDown <= 0){
+        if (Gdx.input.isKeyJustPressed(controls.attack) && !isAttacking && attackCoolDown <= 0) {
             attack();
         }
     }
 
-    private void updateHitBox(){
+    private void updateHitBox() {
         hitBox.setPosition(x, y);
 
-        if(facingLeft){
+        if (facingLeft) {
             attackHitBox.set(x - 20, y + 10, 20, 20);
-        }else{
+        } else {
             attackHitBox.set(x + width, y + 10, 20, 20);
         }
     }
 
-    public void takeDamage(int damage){
-        if(!isAlive || !canTakeDamage) return;
+    public void takeDamage(int damage) {
+        if (!isAlive || !canTakeDamage)
+            return;
 
-        if(isBlocking) damage = damage / 2;
+        if (isBlocking)
+            damage = damage / 2;
 
         health -= damage;
 
-        if(health <= 0){
+        if (health <= 0) {
             health = 0;
             isAlive = false;
         }
     }
 
-    public boolean isHitBy(Rectangle otherAttackHitBox){
+    public boolean isHitBy(Rectangle otherAttackHitBox) {
         return hitBox.overlaps(otherAttackHitBox);
     }
 
-    private void attack(){
-        if(!isAttacking){
+    private void attack() {
+        if (!isAttacking) {
             isAttacking = true;
             attackTimer = 0f;
         }
     }
 
-    public void setCurrentState(State newState){
-        if( newState != this.currentState){
+    public void setCurrentState(State newState) {
+        if (newState != this.currentState) {
             this.currentState = newState;
             animator.resetStateTime();
         }
     }
 
-    public float getHeatlh(){
+    public float getHeatlh() {
         return health;
     }
 
-    public Rectangle getHitBox(){
+    public Rectangle getHitBox() {
         return hitBox;
     }
 
-    public Rectangle getAttackHitBox(){
+    public Rectangle getAttackHitBox() {
         return attackHitBox;
     }
 
-    public void moveRight(float delta){
+    public void moveRight(float delta) {
         x += speed * delta;
         facingLeft = false;
     }
 
-    public boolean isAttackActive(){
+    public boolean isAttackActive() {
         return isAttackActive;
     }
 
-    public void moveLeft(float delta){
+    public void moveLeft(float delta) {
         x -= speed * delta;
         facingLeft = true;
     }
 
-    public boolean isAlive(){
+    public boolean isAlive() {
         return isAlive;
     }
 
-    public State getState(){
+    public State getState() {
         return currentState;
     }
 }

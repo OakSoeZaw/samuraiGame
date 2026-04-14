@@ -128,8 +128,8 @@ public class GameScreen implements Screen{
         } else if (!player2.facingLeft && frame2.isFlipX()) {
             frame2.flip(true, false);
         }
-        batch.draw(animator1.getFrame(player1.getState()), player1.x, player1.y);
-        batch.draw(animator2.getFrame(player2.getState()), player2.x, player2.y);
+        batch.draw(animator1.getFrame(player1.getState()), player1.x -32, player1.y);
+        batch.draw(animator2.getFrame(player2.getState()), player2.x - 32, player2.y);
     }
 
     private void drawHUD(){
