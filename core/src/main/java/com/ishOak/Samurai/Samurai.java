@@ -48,7 +48,7 @@ public class Samurai {
         this.animator = animator;
 
         this.isAlive = true;
-        this.health = 20;
+        this.health = 60;
         this.canTakeDamage = true;
         this.facingLeft = false;
 
@@ -90,6 +90,7 @@ public class Samurai {
         x = MathUtils.clamp(x, 0, 500 - width);
     }
 
+    
     private void handleAttack(float delta) {
         if (!isAlive)
             return;

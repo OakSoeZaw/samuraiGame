@@ -18,8 +18,9 @@ public class GameScreen implements Screen {
 
     // Game State
     public boolean gameOver;
+    private float gameOverTimer;
 
-    //Textures
+    // Textures
     private Texture bgTexture;
     private Texture player1IdleTex, player1RunTex, player1AttackTex, player1DeathTex;
     private Texture player2IdleTex, player2RunTex, player2AttackTex, player2DeathTex;
@@ -31,9 +32,9 @@ public class GameScreen implements Screen {
     private SamuraiAnimator animator1;
     private SamuraiAnimator animator2;
 
-    boolean winner=false;//if false 2 is winner
+    boolean P1winner = false;// if false 2 is winner
 
-    public GameScreen(SamuraiGame game){
+    public GameScreen(SamuraiGame game) {
         this.game = game;
         this.batch = game.getBatch();
         this.font = game.getFont();
@@ -48,10 +49,10 @@ public class GameScreen implements Screen {
         Controls controls2 = new Controls(Input.Keys.UP, Input.Keys.DOWN, Input.Keys.LEFT, Input.Keys.RIGHT,
                 Input.Keys.L, Input.Keys.K);
 
-        //load background texture
-        bgTexture=new Texture("bdg.png");
+        // load background texture
+        bgTexture = new Texture("bdg.png");
 
-        //load texture for player1
+        // load texture for player1
         player1AttackTex = new Texture("p1_attack.png");
         player1IdleTex = new Texture("p1_idle.png");
         player1RunTex = new Texture("p1_run.png");
@@ -69,6 +70,7 @@ public class GameScreen implements Screen {
         player2 = new Samurai(300, 20, controls2, animator2);
 
         gameOver = false;
+        gameOverTimer = 0f;
 
     }
 
@@ -84,20 +86,21 @@ public class GameScreen implements Screen {
         drawHUD();
         batch.end();
 
-        if(gameOver){
-            game.setScreen(new GameOverScreen(game,winner));
+        if (gameOver) {
+            game.setScreen(new GameOverScreen(game, P1winner));
         }
     }
 
     private void drawBackground() {
-        batch.draw(bgTexture,0,0);
+        batch.draw(bgTexture, 0, 0);
     }
 
-    private void update(float delta){
+    private void update(float delta) {
         animator1.update(delta);
         animator2.update(delta);
-        
-        if (gameOver) return;
+
+        if (gameOver)
+            return;
 
         player1.update(delta);
         player2.update(delta);
@@ -111,30 +114,34 @@ public class GameScreen implements Screen {
         if (player2.isAttackActive()) {
             if (player1.isHitBy(player2.getAttackHitBox())) {
                 player1.takeDamage(20);
+                System.out.println("player 2 take damage");
             }
         }
         if (player1.isAttackActive()) {
             if (player2.isHitBy(player1.getAttackHitBox())) {
                 player2.takeDamage(20);
+                System.out.println("player 2 take damage");
             }
         }
     }
 
-    private void checkGameOver(){
-        if(!player1.isAlive() || !player2.isAlive()){
-            gameOver = true;
-            if(player1.isAlive()){
-              winner = true;
+    private void checkGameOver() {
+        if (!player1.isAlive() || !player2.isAlive()) {
+
+            if (player1.isAlive()) {
+                P1winner = true;
             }
-            // boolean p1DeathDone = !player1.isAlive() ? animator1.isDeathAnimationFinished() : true;
-            // boolean p2DeathDone = !player2.isAlive() ? animator2.isDeathAnimationFinished() : true;
+            boolean p1DeathDone = !player1.isAlive() ? animator1.isDeathAnimationFinished() : true;
+            boolean p2DeathDone = !player2.isAlive() ? animator2.isDeathAnimationFinished() : true;
 
-            // if (p1DeathDone && p2DeathDone) {
-            //     gameOver = true;
-            //     System.out.println("Game ended");
-            // }
+            if (p1DeathDone && p2DeathDone) {
+                gameOverTimer += Gdx.graphics.getDeltaTime();
+                if (gameOverTimer >= 1f) {
+                    gameOver = true;
+                    System.out.println("Game Over");
+                }
+            }
 
-            System.out.println("Game ended");
         }
     }
 
