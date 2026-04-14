@@ -52,4 +52,9 @@ public class SamuraiAnimator{
         return new Animation<>(frameDuration, grid[0]);
     }
 
+    
+    public boolean isDeathAnimationFinished(){
+        return deathAnimation.isAnimationFinished(stateTime);
+    }
+
 }

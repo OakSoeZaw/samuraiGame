@@ -48,7 +48,7 @@ public class Samurai {
         this.animator = animator;
 
         this.isAlive = true;
-        this.health = 100;
+        this.health = 20;
         this.canTakeDamage = true;
         this.facingLeft = false;
 
@@ -57,8 +57,10 @@ public class Samurai {
     }
 
     public void update(float delta) {
-        if (!isAlive)
+        if (!isAlive) {
+            animator.update(delta);
             return;
+        }
 
         handleMovement(delta);
         handleAttack(delta);
@@ -67,7 +69,12 @@ public class Samurai {
     }
 
     private void handleMovement(float delta) {
-        if(isAttacking) return;
+        if (!isAlive) {
+            return;
+        }
+        if (isAttacking) {
+            return;
+        }
         if (Gdx.input.isKeyPressed(controls.left)) {
             moveLeft(delta);
             setCurrentState(State.RUNNING);
@@ -84,6 +91,8 @@ public class Samurai {
     }
 
     private void handleAttack(float delta) {
+        if (!isAlive)
+            return;
         if (attackCoolDown > 0) {
             attackCoolDown -= delta;
         }
@@ -95,8 +104,10 @@ public class Samurai {
 
             if (attackTimer >= 0.4f) {
                 isAttacking = false;
+                isAttackActive = false;
                 attackTimer = 0;
                 attackCoolDown = 0.5f;
+                setCurrentState(State.IDLE);
             }
         }
         if (Gdx.input.isKeyJustPressed(controls.attack) && !isAttacking && attackCoolDown <= 0) {
@@ -126,6 +137,7 @@ public class Samurai {
         if (health <= 0) {
             health = 0;
             isAlive = false;
+            setCurrentState(State.DYING);
         }
     }
 
