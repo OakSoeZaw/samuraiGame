@@ -65,7 +65,7 @@ public class StartScreen extends ScreenAdapter
         layout.setText(font, "Player 1: A / D  - Move");
         font.draw(batch, layout, centerX - layout.width / 2, y);
         y -= 40;
-        layout.setText(font, "Player 1: W - Jump");
+        layout.setText(font, "Player 1: F - ATTACK");
         font.draw(batch, layout, centerX - layout.width / 2, y);
         y -= 40;
 
@@ -74,7 +74,7 @@ public class StartScreen extends ScreenAdapter
         font.draw(batch, layout, centerX - layout.width / 2, y);
         y -= 40;
 
-        layout.setText(font, "Player 2: UP ARROW - Jump");
+        layout.setText(font, "Player 2: L - ATTACK");
         font.draw(batch, layout, centerX - layout.width / 2, y);
         y -= 70;
 
