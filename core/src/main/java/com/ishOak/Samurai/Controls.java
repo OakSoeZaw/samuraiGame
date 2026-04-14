@@ -19,6 +19,6 @@ public class Controls {
 
     public String toString(){
         return ("Controls (up: " + up + ", down: " + down + ", right: " + right +
-        " left:" + left +", attack: "+ attack +", block: "+ block + " )");
+            " left:" + left +", attack: "+ attack +", block: "+ block + " )");
     }
 }

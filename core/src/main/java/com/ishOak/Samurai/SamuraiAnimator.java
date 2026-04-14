@@ -39,7 +39,7 @@ public class SamuraiAnimator{
             case ATTACKING :
                 return attackAnimation.getKeyFrame(stateTime, false);
             case DYING :
-                return deathAnimation.getKeyFrame(stateTime,false);
+                return deathAnimation.getKeyFrame(stateTime,true);
             default :
              return idleAnimation.getKeyFrame(stateTime, true);
         }

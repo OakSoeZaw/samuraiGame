@@ -4,7 +4,6 @@ import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Input;
 import com.badlogic.gdx.ScreenAdapter;
 import com.badlogic.gdx.graphics.Color;
-import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.BitmapFont;
 import com.badlogic.gdx.graphics.g2d.GlyphLayout;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
@@ -12,36 +11,28 @@ import com.badlogic.gdx.utils.ScreenUtils;
 import com.badlogic.gdx.utils.viewport.ScreenViewport;
 import com.badlogic.gdx.utils.viewport.Viewport;
 
-public class StartScreen extends ScreenAdapter
-{
-    private final  SamuraiGame game;
+public class GameOverScreen extends ScreenAdapter {
+    private final SamuraiGame game;
     private final SpriteBatch batch;
     private final BitmapFont font;
     private final Viewport viewport = new ScreenViewport();
     private final GlyphLayout layout = new GlyphLayout();
+    boolean winner;
 
-    private final Texture bgdTexture;
-
-    public StartScreen(SamuraiGame game) {
+    public GameOverScreen(SamuraiGame game, boolean winner) {
         this.game = game;
         this.batch = game.getBatch();
         this.font = game.getFont();
-
-        // load textures
-        bgdTexture = new Texture(Gdx.files.internal("ssbg.png"));
+        this.winner=winner;
     }
-
-    @Override
     public void resize(int width, int height) {
         viewport.update(width, height, true);
     }
 
     @Override
     public void render(float deltaTime) {
-
-        if (Gdx.input.isKeyJustPressed(Input.Keys.SPACE)) {
-            game.setScreen(new GameScreen(game));
-            dispose();
+        if (Gdx.input.isKeyJustPressed(Input.Keys.ENTER)) {
+            Gdx.app.exit();
             return;
         }
 
@@ -51,38 +42,27 @@ public class StartScreen extends ScreenAdapter
         batch.setProjectionMatrix(viewport.getCamera().combined);
         batch.begin();
 
-        batch.draw(bgdTexture,0,0,viewport.getWorldWidth(),viewport.getWorldHeight());
-
         float centerX = viewport.getWorldWidth() / 2;
         float y = viewport.getWorldHeight() / 2 + 100;
 
-        font.setColor(Color.WHITE);
+        layout.setText(font, "GAME OVER!!!");
+        font.draw(batch, layout, centerX - layout.width / 2, y);
 
-        layout.setText(font, "CONTROLS");
+        y -= 40;
+
+
+        //need to make a winner method in the GameScreen to pinpoint to winner and display it to the game over screen
+        if(winner)
+            layout.setText(font, "PLAYER1 WINS");
+        else
+            layout.setText(font, "PLAYER2 WINS");
         font.draw(batch, layout, centerX - layout.width / 2, y);
         y -= 50;
 
-        layout.setText(font, "Player 1: A / D  - Move");
-        font.draw(batch, layout, centerX - layout.width / 2, y);
-        y -= 40;
-        layout.setText(font, "Player 1: F - ATTACK");
-        font.draw(batch, layout, centerX - layout.width / 2, y);
-        y -= 40;
-
-
-        layout.setText(font, "Player 2: <- / -> - Move");
-        font.draw(batch, layout, centerX - layout.width / 2, y);
-        y -= 40;
-
-        layout.setText(font, "Player 2: L - ATTACK");
-        font.draw(batch, layout, centerX - layout.width / 2, y);
-        y -= 70;
-
-        layout.setText(font, "Press SPACE to start");
+        layout.setText(font, "PRESS ENTER TO EXIT");
         font.draw(batch, layout, centerX - layout.width / 2, y);
 
         batch.end();
     }
-
-
 }
+
