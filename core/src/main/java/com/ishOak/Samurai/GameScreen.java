@@ -9,6 +9,7 @@ import com.badlogic.gdx.graphics.g2d.Animation;
 import com.badlogic.gdx.graphics.g2d.BitmapFont;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
+import com.badlogic.gdx.utils.Array;
 
 public class GameScreen implements Screen {
 
@@ -25,12 +26,28 @@ public class GameScreen implements Screen {
     private Texture player1IdleTex, player1RunTex, player1AttackTex, player1DeathTex;
     private Texture player2IdleTex, player2RunTex, player2AttackTex, player2DeathTex;
 
+
+    private final Array<Texture> backgroundTextures = loadBackgroundTextures();
+    private final Animation<TextureRegion> backgroundAnimation=buildBackgroundAnimation();
+    private float stateTime = 0f;
+
+    private Animation<TextureRegion> buildBackgroundAnimation() {
+        Array<TextureRegion> regions = new Array<>(24);
+        for (Texture t : backgroundTextures) {
+            regions.add(new TextureRegion(t));
+        }
+        Animation<TextureRegion> anim = new Animation<>(1 / 5f, regions);
+        anim.setPlayMode(Animation.PlayMode.LOOP);
+        return anim;
+    }
+
     // Players
     private Samurai player1;
     private Samurai player2;
 
     private SamuraiAnimator animator1;
     private SamuraiAnimator animator2;
+
 
     boolean P1winner = false;// if false 2 is winner
 
@@ -91,13 +108,27 @@ public class GameScreen implements Screen {
         }
     }
 
+
+    private Array<Texture> loadBackgroundTextures() {
+            Array<Texture> textures = new Array<Texture>(24);
+            for (int i = 0; i <= 23; i++) {
+                textures.add(new Texture(Gdx.files.internal(String.format("frame_%02d.png", i))));
+            }
+            return textures;
+    }
+
+
+
+
     private void drawBackground() {
-        batch.draw(bgTexture, 0, 0);
+        TextureRegion frame = backgroundAnimation.getKeyFrame(stateTime);
+        batch.draw(frame, 0, 0, Gdx.graphics.getWidth(), Gdx.graphics.getHeight());
     }
 
     private void update(float delta) {
         animator1.update(delta);
         animator2.update(delta);
+        stateTime += delta;
 
         if (gameOver)
             return;
@@ -185,6 +216,7 @@ public class GameScreen implements Screen {
         player2RunTex.dispose();
         player2AttackTex.dispose();
         player2DeathTex.dispose();
+        backgroundTextures.forEach(Texture::dispose);
     }
 
     @Override
