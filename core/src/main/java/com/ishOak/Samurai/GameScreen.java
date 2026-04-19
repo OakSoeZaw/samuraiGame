@@ -4,18 +4,25 @@ import com.badlogic.gdx.Screen;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Input;
 import com.badlogic.gdx.graphics.GL20;
+import com.badlogic.gdx.graphics.OrthographicCamera;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.Animation;
 import com.badlogic.gdx.graphics.g2d.BitmapFont;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
+import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
+import com.badlogic.gdx.math.Rectangle;
 import com.badlogic.gdx.utils.Array;
+import com.badlogic.gdx.utils.viewport.FitViewport;
 
 public class GameScreen implements Screen {
 
     private SamuraiGame game;
     private SpriteBatch batch;
     private BitmapFont font;
+    private ShapeRenderer shapeRenderer;
+    private OrthographicCamera camera;
+    private FitViewport viewport;
 
     // Game State
     public boolean gameOver;
@@ -93,6 +100,11 @@ public class GameScreen implements Screen {
         player1 = new Samurai(100, 20, controls1, animator1);
         player2 = new Samurai(300, 20, controls2, animator2);
 
+        camera = new OrthographicCamera();
+        viewport = new FitViewport(640, 600, camera);
+
+        shapeRenderer = new ShapeRenderer();
+
         gameOver = false;
         gameOverTimer = 0f;
 
@@ -103,12 +115,18 @@ public class GameScreen implements Screen {
         Gdx.gl.glClearColor(0, 0, 0, 1);
         Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT);
 
+        viewport.apply();
+        camera.update();
+        batch.setProjectionMatrix(camera.combined);
+        shapeRenderer.setProjectionMatrix(camera.combined);
+
         update(delta);
         batch.begin();
         drawBackground();
         drawPlayers();
-        drawHUD();
         batch.end();
+
+        drawHUD();
 
         if (gameOver) {
             game.setScreen(new GameOverScreen(game, P1winner));
@@ -129,7 +147,7 @@ public class GameScreen implements Screen {
 
     private void drawBackground() {
         TextureRegion frame = backgroundAnimation.getKeyFrame(stateTime);
-        batch.draw(frame, 0, 0, Gdx.graphics.getWidth(), Gdx.graphics.getHeight());
+        batch.draw(frame, 0, 0, 640, 600); // fixed size, not Gdx.graphics
     }
 
     private void update(float delta) {
@@ -202,9 +220,26 @@ public class GameScreen implements Screen {
         batch.draw(frame2, player2.x - 32, player2.y);
     }
 
+
     private void drawHUD() {
-        font.draw(batch, "HP:" + (int) player1.getHeatlh(), 20, 580);
-        font.draw(batch, "HP:" + (int) player2.getHeatlh(), 620, 580);
+        float maxHealth = 300f;
+        float barWidth = 200f;
+        float barHeight = 15f;
+        float barY = 575f;  // near top of 600 viewport
+        float p1BarX = 20f;
+        float p2BarX = 420f; // right side
+
+        shapeRenderer.begin(ShapeRenderer.ShapeType.Filled);
+
+        shapeRenderer.setColor(0.3f, 0.3f, 0.3f, 1);
+        shapeRenderer.rect(p1BarX, barY, barWidth, barHeight);
+        shapeRenderer.rect(p2BarX, barY, barWidth, barHeight);
+
+        shapeRenderer.setColor(0, 1, 0, 1);
+        shapeRenderer.rect(p1BarX, barY, barWidth * (player1.getHeatlh() / maxHealth), barHeight);
+        shapeRenderer.rect(p2BarX, barY, barWidth * (player2.getHeatlh() / maxHealth), barHeight);
+
+        shapeRenderer.end();
     }
 
     @Override
@@ -229,10 +264,14 @@ public class GameScreen implements Screen {
         player2AttackTex.dispose();
         player2DeathTex.dispose();
         backgroundTextures.forEach(Texture::dispose);
+
+        shapeRenderer.dispose();
+
     }
 
     @Override
     public void resize(int width, int height) {
+        viewport.update(width, height, true);
     }
 
     @Override

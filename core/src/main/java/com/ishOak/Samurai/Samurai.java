@@ -144,9 +144,9 @@ public class Samurai {
     private void updateHitBox() {
         hitBox.setPosition(x, y);
         if (facingLeft) {
-            attackHitBox.set(x - 20, y + 10, 20, 20);
+            attackHitBox.set(x - 40, y + 10, 40, 30);
         } else {
-            attackHitBox.set(x + width, y + 10, 20, 20);
+            attackHitBox.set(x + width, y + 10, 40, 30);
         }
     }
 
@@ -154,8 +154,6 @@ public class Samurai {
         if (!isAlive || !canTakeDamage)
             return;
 
-        if (isBlocking)
-            damage = damage / 2;
 
         health -= damage;
 
