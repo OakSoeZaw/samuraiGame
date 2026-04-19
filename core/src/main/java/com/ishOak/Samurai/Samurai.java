@@ -7,7 +7,7 @@ import com.badlogic.gdx.math.MathUtils;
 public class Samurai {
 
     public enum State {
-        IDLE, RUNNING, DYING, ATTACKING
+        IDLE, RUNNING, DYING, ATTACKING, JUMPING
     };
 
     public float x, y;
@@ -34,6 +34,15 @@ public class Samurai {
     private SamuraiAnimator animator;
     private Controls controls;
 
+    // jumping
+    private boolean isJumping;
+    private float velocityY;
+    private static final float GRAVITY = -800f;
+    private static final float JUMP_FORCE = 500f;
+    private static final float GROUND_Y = 20f;
+
+
+
     //
     public Samurai(float x, float y, Controls controls, SamuraiAnimator animator) {
         this.x = x;
@@ -48,7 +57,7 @@ public class Samurai {
         this.animator = animator;
 
         this.isAlive = true;
-        this.health = 60;
+        this.health = 300;
         this.canTakeDamage = true;
         this.facingLeft = false;
 
@@ -69,28 +78,44 @@ public class Samurai {
     }
 
     private void handleMovement(float delta) {
-        if (!isAlive) {
-            return;
-        }
-        if (isAttacking) {
-            return;
-        }
+        if (!isAlive || isAttacking) return;
+
+        // horizontal movement
         if (Gdx.input.isKeyPressed(controls.left)) {
             moveLeft(delta);
-            setCurrentState(State.RUNNING);
+            if (!isJumping) setCurrentState(State.RUNNING);
         } else if (Gdx.input.isKeyPressed(controls.right)) {
             moveRight(delta);
-            setCurrentState(State.RUNNING);
-
+            if (!isJumping) setCurrentState(State.RUNNING);
         } else {
-            setCurrentState(State.IDLE);
+            if (!isJumping) setCurrentState(State.IDLE);
         }
-        // maybe jump and down afterwards
-        // if jump, need gravity to bring it down
+
+        // jump
+        if (Gdx.input.isKeyJustPressed(controls.jump) && !isJumping) {
+            velocityY = JUMP_FORCE;
+            isJumping = true;
+            setCurrentState(State.JUMPING);
+        }
+
+        // apply gravity
+        if (isJumping) {
+            velocityY += GRAVITY * delta;
+            y += velocityY * delta;
+            setCurrentState(State.JUMPING);
+
+            if (y <= GROUND_Y) {
+                y = GROUND_Y;
+                isJumping = false;
+                velocityY = 0;
+                setCurrentState(State.IDLE);
+            }
+        }
+
         x = MathUtils.clamp(x, 0, 500 - width);
     }
 
-    
+
     private void handleAttack(float delta) {
         if (!isAlive)
             return;
@@ -118,7 +143,6 @@ public class Samurai {
 
     private void updateHitBox() {
         hitBox.setPosition(x, y);
-
         if (facingLeft) {
             attackHitBox.set(x - 20, y + 10, 20, 20);
         } else {
