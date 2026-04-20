@@ -41,7 +41,8 @@ public class Samurai {
     private static final float JUMP_FORCE = 500f;
     private static final float GROUND_Y = 20f;
 
-
+    private float damageCooldownTimer = 0f;
+    private static final float DAMAGE_COOLDOWN = 0.5f;
 
     //
     public Samurai(float x, float y, Controls controls, SamuraiAnimator animator) {
@@ -57,7 +58,7 @@ public class Samurai {
         this.animator = animator;
 
         this.isAlive = true;
-        this.health = 300;
+        this.health = 100;
         this.canTakeDamage = true;
         this.facingLeft = false;
 
@@ -66,6 +67,11 @@ public class Samurai {
     }
 
     public void update(float delta) {
+        if (damageCooldownTimer > 0) {
+            damageCooldownTimer -= delta;
+            canTakeDamage = damageCooldownTimer <= 0;
+        }
+
         if (!isAlive) {
             animator.update(delta);
             return;
@@ -78,17 +84,21 @@ public class Samurai {
     }
 
     private void handleMovement(float delta) {
-        if (!isAlive || isAttacking) return;
+        if (!isAlive || isAttacking)
+            return;
 
         // horizontal movement
         if (Gdx.input.isKeyPressed(controls.left)) {
             moveLeft(delta);
-            if (!isJumping) setCurrentState(State.RUNNING);
+            if (!isJumping)
+                setCurrentState(State.RUNNING);
         } else if (Gdx.input.isKeyPressed(controls.right)) {
             moveRight(delta);
-            if (!isJumping) setCurrentState(State.RUNNING);
+            if (!isJumping)
+                setCurrentState(State.RUNNING);
         } else {
-            if (!isJumping) setCurrentState(State.IDLE);
+            if (!isJumping)
+                setCurrentState(State.IDLE);
         }
 
         // jump
@@ -115,7 +125,6 @@ public class Samurai {
         x = MathUtils.clamp(x, 0, 500 - width);
     }
 
-
     private void handleAttack(float delta) {
         if (!isAlive)
             return;
@@ -133,7 +142,7 @@ public class Samurai {
                 isAttackActive = false;
                 attackTimer = 0;
                 attackCoolDown = 0.5f;
-                setCurrentState(State.IDLE);
+                setCurrentState(isJumping ? State.JUMPING : State.IDLE);
             }
         }
         if (Gdx.input.isKeyJustPressed(controls.attack) && !isAttacking && attackCoolDown <= 0) {
@@ -154,8 +163,10 @@ public class Samurai {
         if (!isAlive || !canTakeDamage)
             return;
 
-
         health -= damage;
+        canTakeDamage = false;
+        damageCooldownTimer = DAMAGE_COOLDOWN;
+        System.out.println("player took damage");
 
         if (health <= 0) {
             health = 0;
@@ -182,7 +193,7 @@ public class Samurai {
         }
     }
 
-    public float getHeatlh() {
+    public float getHealth() {
         return health;
     }
 

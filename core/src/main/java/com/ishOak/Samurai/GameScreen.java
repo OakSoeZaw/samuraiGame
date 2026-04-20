@@ -35,9 +35,8 @@ public class GameScreen implements Screen {
     private Texture player1JumpTex, player1BlockTex;
     private Texture player2JumpTex, player2BlockTex;
 
-
     private final Array<Texture> backgroundTextures = loadBackgroundTextures();
-    private final Animation<TextureRegion> backgroundAnimation=buildBackgroundAnimation();
+    private final Animation<TextureRegion> backgroundAnimation = buildBackgroundAnimation();
     private float stateTime = 0f;
 
     private Animation<TextureRegion> buildBackgroundAnimation() {
@@ -57,7 +56,6 @@ public class GameScreen implements Screen {
     private SamuraiAnimator animator1;
     private SamuraiAnimator animator2;
 
-
     boolean P1winner = false;// if false 2 is winner
 
     public GameScreen(SamuraiGame game) {
@@ -69,8 +67,7 @@ public class GameScreen implements Screen {
     @Override
     public void show() {
         // player 1 with WASD and F for attack
-        Controls controls1 = new Controls(Input.Keys.W, Input.Keys.S, Input.Keys.A, Input.Keys.D, Input.Keys.F
-                );
+        Controls controls1 = new Controls(Input.Keys.W, Input.Keys.S, Input.Keys.A, Input.Keys.D, Input.Keys.F);
         // player 2 with arrow keys and L to attack
         Controls controls2 = new Controls(Input.Keys.UP, Input.Keys.DOWN, Input.Keys.LEFT, Input.Keys.RIGHT,
                 Input.Keys.L);
@@ -83,19 +80,20 @@ public class GameScreen implements Screen {
         player1IdleTex = new Texture("p1_idle.png");
         player1RunTex = new Texture("p1_run.png");
         player1DeathTex = new Texture("p1_death.png");
-        player1JumpTex  = new Texture("p1_jump.png");
-       // player1BlockTex = new Texture("p1_block.png");
-
+        player1JumpTex = new Texture("p1_jump.png");
+        // player1BlockTex = new Texture("p1_block.png");
 
         player2AttackTex = new Texture("p2_attack.png");
         player2IdleTex = new Texture("p2_idle.png");
         player2RunTex = new Texture("p2_run.png");
         player2DeathTex = new Texture("p2_death.png");
-        player2JumpTex  = new Texture("p2_jump.png");
-       // player2BlockTex = new Texture("p2_block.png");
+        player2JumpTex = new Texture("p2_jump.png");
+        // player2BlockTex = new Texture("p2_block.png");
 
-        animator1 = new SamuraiAnimator(player1RunTex, player1AttackTex, player1DeathTex, player1IdleTex, player1JumpTex);
-        animator2 = new SamuraiAnimator(player2RunTex, player2AttackTex, player2DeathTex, player2IdleTex, player2JumpTex);
+        animator1 = new SamuraiAnimator(player1RunTex, player1AttackTex, player1DeathTex, player1IdleTex,
+                player1JumpTex);
+        animator2 = new SamuraiAnimator(player2RunTex, player2AttackTex, player2DeathTex, player2IdleTex,
+                player2JumpTex);
 
         player1 = new Samurai(100, 20, controls1, animator1);
         player2 = new Samurai(300, 20, controls2, animator2);
@@ -133,17 +131,13 @@ public class GameScreen implements Screen {
         }
     }
 
-
     private Array<Texture> loadBackgroundTextures() {
-            Array<Texture> textures = new Array<Texture>(24);
-            for (int i = 0; i <= 23; i++) {
-                textures.add(new Texture(Gdx.files.internal(String.format("frame_%02d.png", i))));
-            }
-            return textures;
+        Array<Texture> textures = new Array<Texture>(24);
+        for (int i = 0; i <= 23; i++) {
+            textures.add(new Texture(Gdx.files.internal(String.format("frame_%02d.png", i))));
+        }
+        return textures;
     }
-
-
-
 
     private void drawBackground() {
         TextureRegion frame = backgroundAnimation.getKeyFrame(stateTime);
@@ -170,13 +164,11 @@ public class GameScreen implements Screen {
         if (player2.isAttackActive()) {
             if (player1.isHitBy(player2.getAttackHitBox())) {
                 player1.takeDamage(20);
-                System.out.println("player 2 take damage");
             }
         }
         if (player1.isAttackActive()) {
             if (player2.isHitBy(player1.getAttackHitBox())) {
                 player2.takeDamage(20);
-                System.out.println("player 2 take damage");
             }
         }
     }
@@ -220,12 +212,11 @@ public class GameScreen implements Screen {
         batch.draw(frame2, player2.x - 32, player2.y);
     }
 
-
     private void drawHUD() {
-        float maxHealth = 300f;
+        float maxHealth = 100f;
         float barWidth = 200f;
         float barHeight = 15f;
-        float barY = 575f;  // near top of 600 viewport
+        float barY = 575f; // near top of 600 viewport
         float p1BarX = 20f;
         float p2BarX = 420f; // right side
 
@@ -236,8 +227,8 @@ public class GameScreen implements Screen {
         shapeRenderer.rect(p2BarX, barY, barWidth, barHeight);
 
         shapeRenderer.setColor(0, 1, 0, 1);
-        shapeRenderer.rect(p1BarX, barY, barWidth * (player1.getHeatlh() / maxHealth), barHeight);
-        shapeRenderer.rect(p2BarX, barY, barWidth * (player2.getHeatlh() / maxHealth), barHeight);
+        shapeRenderer.rect(p1BarX, barY, barWidth * (player1.getHealth() / maxHealth), barHeight);
+        shapeRenderer.rect(p2BarX, barY, barWidth * (player2.getHealth() / maxHealth), barHeight);
 
         shapeRenderer.end();
     }
@@ -254,11 +245,8 @@ public class GameScreen implements Screen {
         player1AttackTex.dispose();
         player1DeathTex.dispose();
         player1JumpTex.dispose();
-        player1BlockTex.dispose();
-
 
         player2JumpTex.dispose();
-        player2BlockTex.dispose();
         player2IdleTex.dispose();
         player2RunTex.dispose();
         player2AttackTex.dispose();
