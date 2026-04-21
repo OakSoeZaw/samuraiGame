@@ -6,10 +6,7 @@ import com.badlogic.gdx.Input;
 import com.badlogic.gdx.graphics.GL20;
 import com.badlogic.gdx.graphics.OrthographicCamera;
 import com.badlogic.gdx.graphics.Texture;
-import com.badlogic.gdx.graphics.g2d.Animation;
-import com.badlogic.gdx.graphics.g2d.BitmapFont;
-import com.badlogic.gdx.graphics.g2d.SpriteBatch;
-import com.badlogic.gdx.graphics.g2d.TextureRegion;
+import com.badlogic.gdx.graphics.g2d.*;
 import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
 import com.badlogic.gdx.math.Rectangle;
 import com.badlogic.gdx.utils.Array;
@@ -27,6 +24,10 @@ public class GameScreen implements Screen {
     // Game State
     public boolean gameOver;
     private float gameOverTimer;
+
+    private int stage; // 1 or 2
+    private int enemyKillCount = 0;
+    private final GlyphLayout layout = new GlyphLayout();
 
     // Textures
     private Texture bgTexture;
@@ -68,10 +69,11 @@ public class GameScreen implements Screen {
     private boolean winnerDecided = false;
     boolean P1winner = false;// if false 2 is winner
 
-    public GameScreen(SamuraiGame game) {
+    public GameScreen(SamuraiGame game,  int stage) {
         this.game = game;
         this.batch = game.getBatch();
         this.font = game.getFont();
+        this.stage=stage;
     }
 
     @Override
@@ -150,8 +152,12 @@ public class GameScreen implements Screen {
 
     private Array<Texture> loadBackgroundTextures() {
         Array<Texture> textures = new Array<Texture>(24);
-        for (int i = 0; i <= 23; i++) {
-            textures.add(new Texture(Gdx.files.internal(String.format("frame_%02d.png", i))));
+        if (stage == 1) {
+            for (int i = 0; i <= 7; i++)
+                textures.add(new Texture(Gdx.files.internal(String.format("night_frame_%03d.png", i))));
+        } else {
+            for (int i = 0; i <= 23; i++)
+                textures.add(new Texture(Gdx.files.internal(String.format("frame_%02d.png", i))));
         }
         return textures;
     }
@@ -183,6 +189,7 @@ public class GameScreen implements Screen {
         for (int i = enemies.size - 1; i >= 0; i--) {
             Enemy e = enemies.get(i);
             if (!e.isAlive() && e.isDeathFinished()) {
+                enemyKillCount++;
                 enemies.removeIndex(i);
             }
         }
@@ -195,13 +202,12 @@ public class GameScreen implements Screen {
     private void spawnEnemy() {
         boolean fromLeft = spawnCount % 2 == 0;
         spawnCount++;
+        float spawnX = fromLeft ? -50f : 690f;
 
-        float spanwX = fromLeft ? -50f : 690f;
-        Samurai target = fromLeft ? player1 : player2;
-
-        SamuraiAnimator enemyAnimator = new SamuraiAnimator(enemyRunTex, enemyAttackTex, enemyDeathTex, enemyIdleTex,
-                enemyJumpTex, enemyHitTex);
-        enemies.add(new Enemy(spanwX, 20f, enemyAnimator, target));
+        SamuraiAnimator enemyAnimator = new SamuraiAnimator(
+            enemyRunTex, enemyAttackTex, enemyDeathTex,
+            enemyIdleTex, enemyJumpTex, enemyHitTex);
+        enemies.add(new Enemy(spawnX, 20f, enemyAnimator, player1, player2)); // pass both
     }
 
     private void checkCombat() {
@@ -267,8 +273,8 @@ public class GameScreen implements Screen {
         } else if (!player2.facingLeft && frame2.isFlipX()) {
             frame2.flip(true, false);
         }
-        batch.draw(frame1, player1.x - 32, player1.y);
-        batch.draw(frame2, player2.x - 32, player2.y);
+        batch.draw(frame1, player1.x - 16, player1.y);
+        batch.draw(frame2, player2.x - 16, player2.y);
 
         for (Enemy e : enemies) {
             TextureRegion eFrame = e.getFrame();
@@ -286,21 +292,41 @@ public class GameScreen implements Screen {
         float maxHealth = 100f;
         float barWidth = 200f;
         float barHeight = 15f;
-        float barY = 575f; // near top of 600 viewport
+        float barY = 575f;
         float p1BarX = 20f;
-        float p2BarX = 420f; // right side
+        float p2BarX = 420f;
 
         shapeRenderer.begin(ShapeRenderer.ShapeType.Filled);
 
+        // background of bars
         shapeRenderer.setColor(0.3f, 0.3f, 0.3f, 1);
         shapeRenderer.rect(p1BarX, barY, barWidth, barHeight);
         shapeRenderer.rect(p2BarX, barY, barWidth, barHeight);
 
+        // green fill
         shapeRenderer.setColor(0, 1, 0, 1);
         shapeRenderer.rect(p1BarX, barY, barWidth * (player1.getHealth() / maxHealth), barHeight);
         shapeRenderer.rect(p2BarX, barY, barWidth * (player2.getHealth() / maxHealth), barHeight);
 
         shapeRenderer.end();
+
+        // text elements
+        batch.begin();
+
+        // player name labels above bars
+        font.setColor(1, 1, 1, 1);
+
+        layout.setText(font, "PLAYER 1");
+        font.draw(batch, layout, p1BarX, barY + barHeight + 15);
+
+        layout.setText(font, "PLAYER 2");
+        font.draw(batch, layout, p2BarX, barY + barHeight + 15);
+
+        // kill counter centered at top
+        layout.setText(font, "Kills: " + enemyKillCount);
+        font.draw(batch, layout, 640 / 2f - layout.width / 2, barY + barHeight + 15);
+
+        batch.end();
     }
 
     @Override

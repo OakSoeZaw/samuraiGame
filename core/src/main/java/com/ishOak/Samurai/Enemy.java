@@ -6,7 +6,7 @@ import com.badlogic.gdx.math.Rectangle;
 public class Enemy {
 
     public enum State {
-        RUNNING, ATTACKING, DYING, HIT
+        IDLE, RUNNING, ATTACKING, DYING, HIT
     };
 
     private State currState;
@@ -36,13 +36,17 @@ public class Enemy {
     public boolean canTakeDamage = true;
     private float damageCooldownTimer = 0f;
     private static final float DAMAGE_COOLDOWN = 0.5f;
-    private Samurai target;
 
-    public Enemy(float x, float y, SamuraiAnimator animator, Samurai target) {
+    private Samurai player1;
+    private Samurai player2;
+
+    public Enemy(float x, float y, SamuraiAnimator animator, Samurai player1, Samurai player2) {
         this.x = x;
         this.y = y;
         this.animator = animator;
-        this.target = target;
+
+        this.player1 = player1;
+        this.player2 = player2;
 
         this.width = 32;
         this.height = 48;
@@ -72,26 +76,39 @@ public class Enemy {
             canTakeDamage = damageCooldownTimer <= 0;
         }
 
-        float distToTarget = Math.abs(target.x - this.x);
-        if (currState == State.HIT)
+
+        if (hitTimer > 0) {
+            hitTimer -= delta;
+            if (hitTimer <= 0 && isAlive) {
+                setState(State.RUNNING);
+            }
+        }
+
+
+        if (currState == State.HIT) {
+            animator.update(delta);
             return;
+        }
+
+
+        Samurai closerTarget = Math.abs(player1.x - this.x) <= Math.abs(player2.x - this.x)
+            ? player1 : player2;
+
+
+        if (!closerTarget.isAlive()) {
+            closerTarget = closerTarget == player1 ? player2 : player1;
+        }
+
+        float distToTarget = Math.abs(closerTarget.x - this.x);
 
         if (distToTarget > ATTACK_RANGE) {
-            if (target.x > this.x)
+            if (closerTarget.x > this.x)
                 moveRight(delta);
             else
                 moveLeft(delta);
             setState(State.RUNNING);
         } else {
             handleAttack(delta);
-        }
-
-        if (hitTimer > 0) {
-            hitTimer -= delta;
-            if (hitTimer <= 0 && isAlive) {
-
-                setState(State.RUNNING);
-            }
         }
 
         updateHitBoxes();
@@ -101,20 +118,19 @@ public class Enemy {
     public void handleAttack(float delta) {
         if (currState == State.ATTACKING) {
             attackTimer += delta;
-
             isAttackActive = attackTimer >= 0.1f && attackTimer <= 0.3f;
 
             if (attackTimer >= 0.4f) {
                 isAttackActive = false;
                 attackTimer = 0f;
                 attackCooldown = ATTACK_COOLDOWN;
-                setState(State.RUNNING);
+                setState(State.IDLE);
             }
+        } else if (attackCooldown <= 0) {
+            attackTimer = 0f;
+            setState(State.ATTACKING);
         } else {
-            if (attackCooldown <= 0) {
-                attackTimer = 0f;
-                setState((State.ATTACKING));
-            }
+            setState(State.IDLE);
         }
     }
 

@@ -133,7 +133,7 @@ public class Samurai {
             }
         }
 
-        x = MathUtils.clamp(x, 0, 500 - width);
+        x = MathUtils.clamp(x, 0, 580 - width);
     }
 
     private void handleAttack(float delta) {
@@ -178,13 +178,13 @@ public class Samurai {
         canTakeDamage = false;
         damageCooldownTimer = DAMAGE_COOLDOWN;
         hitTimer = HIT_DURATION;
-        isHit = true;   
+        isHit = true;
         setCurrentState(State.HIT);
 
         if (health <= 0) {
             health = 0;
             isAlive = false;
-            isHit = false;          
+            isHit = false;
             setCurrentState(State.DYING);
         }
     }

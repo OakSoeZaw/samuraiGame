@@ -65,6 +65,8 @@ public class SamuraiAnimator {
                 return deathAnimation.getKeyFrame(stateTime, false);
             case HIT:
                 return hitAnimation.getKeyFrame(stateTime, false);
+            case IDLE:
+                return idleAnimation.getKeyFrame(stateTime, true);
             default:
                 return runAnimation.getKeyFrame(stateTime, true);
         }
