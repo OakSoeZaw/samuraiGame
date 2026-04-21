@@ -65,13 +65,13 @@ public class GameOverScreen extends ScreenAdapter {
         flashTimer += delta;
         if (slideTimer < 1f) slideTimer += delta * 2f;
 
-        // flash toggle
+
         if (flashTimer >= 0.5f) {
             flashTimer = 0f;
             showFlash = !showFlash;
         }
 
-        // drift stars upward
+
         for (int i = 0; i < starX.length; i++) {
             starY[i] += starSpeed[i] * delta;
             if (starY[i] > viewport.getWorldHeight() + 10f)
@@ -92,31 +92,31 @@ public class GameOverScreen extends ScreenAdapter {
         float cx = viewport.getWorldWidth() / 2;
         float worldH = viewport.getWorldHeight();
 
-        // ── drifting stars ───────────────────────────────────────────
+
         for (int i = 0; i < starX.length; i++) {
             font.setColor(1f, 1f, 0.6f, starAlpha[i]);
             font.draw(batch, "✦", starX[i], starY[i]);
         }
 
-        // ── GAME OVER title with pulse ───────────────────────────────
+
         float pulse = 1f + MathUtils.sin(timer * 3f) * 0.04f; // subtle scale pulse via alpha
         float pulseAlpha = 0.75f + MathUtils.sin(timer * 3f) * 0.25f;
 
-        // dark red shadow
+
         font.setColor(0.5f, 0f, 0f, 1f);
         layout.setText(font, "GAME OVER");
         font.draw(batch, layout, cx - layout.width / 2 + 3, worldH * 0.78f - 3);
 
-        // main red title
+
         font.setColor(1f, 0.15f, 0.15f, pulseAlpha);
         font.draw(batch, layout, cx - layout.width / 2, worldH * 0.78f);
 
-        // ── decorative swords ────────────────────────────────────────
+
         font.setColor(0.8f, 0.8f, 0.8f, 1f);
         layout.setText(font, "— ⚔ ————————————————— ⚔ —");
         font.draw(batch, layout, cx - layout.width / 2, worldH * 0.68f);
 
-        // ── winner text slides in ────────────────────────────────────
+
         float slide = MathUtils.clamp(slideTimer / SLIDE_DURATION, 0f, 1f);
         float slideOffsetX = (1f - slide) * 400f; // slides in from right
 
@@ -125,22 +125,22 @@ public class GameOverScreen extends ScreenAdapter {
             ? new Color(0.4f, 0.8f, 1f, slide)   // P1 blue
             : new Color(1f, 0.5f, 0.3f, slide);   // P2 orange
 
-        // shadow
+
         font.setColor(0f, 0f, 0f, slide * 0.8f);
         layout.setText(font, winnerText);
         font.draw(batch, layout, cx - layout.width / 2 + slideOffsetX + 3, worldH * 0.55f - 3);
 
-        // main
+
         font.setColor(winnerColor);
         font.draw(batch, layout, cx - layout.width / 2 + slideOffsetX, worldH * 0.55f);
 
-        // ── crown above winner text ───────────────────────────────────
+
         float crownBob = MathUtils.sin(timer * 2.5f) * 5f;
         font.setColor(1f, 0.85f, 0f, slide); // gold
         layout.setText(font, "♛");
         font.draw(batch, layout, cx - layout.width / 2, worldH * 0.63f + crownBob);
 
-        // ── flashing PRESS ENTER ─────────────────────────────────────
+
         if (showFlash) {
             font.setColor(1f, 0.8f, 0f, 0.3f); // glow
             layout.setText(font, "▶  PRESS ENTER TO PLAY AGAIN  ◀");
@@ -150,7 +150,7 @@ public class GameOverScreen extends ScreenAdapter {
             font.draw(batch, layout, cx - layout.width / 2, worldH * 0.25f);
         }
 
-        // ── bottom hint ──────────────────────────────────────────────
+
         font.setColor(0.5f, 0.5f, 0.5f, 1f);
         layout.setText(font, "returns to stage select");
         font.draw(batch, layout, cx - layout.width / 2, worldH * 0.18f);
@@ -165,6 +165,6 @@ public class GameOverScreen extends ScreenAdapter {
 
     @Override
     public void dispose() {
-        // batch and font are owned by SamuraiGame, don't dispose here
+
     }
 }

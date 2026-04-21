@@ -24,16 +24,16 @@ public class StartScreen extends ScreenAdapter {
 
     private float timer = 0f;
 
-    // for title bob
+
     private float titleY;
     private static final float TITLE_BOB_SPEED = 2f;
     private static final float TITLE_BOB_AMOUNT = 6f;
 
-    // for flashing "press space"
+
     private float flashTimer = 0f;
     private boolean showFlash = true;
 
-    // for sliding in control lines
+
     private float slideTimer = 0f;
     private static final float SLIDE_DURATION = 0.4f;
 
@@ -85,7 +85,7 @@ public class StartScreen extends ScreenAdapter {
         float bobOffset = MathUtils.sin(timer * TITLE_BOB_SPEED) * TITLE_BOB_AMOUNT;
         titleY = worldH * 0.82f + bobOffset;
 
-        // red shadow
+
         font.setColor(0.7f, 0f, 0f, 1f);
         layout.setText(font, "⚔  SAMURAI DUEL  ⚔");
         font.draw(batch, layout, cx - layout.width / 2 + 3, titleY - 3);
@@ -93,12 +93,12 @@ public class StartScreen extends ScreenAdapter {
         font.setColor(Color.WHITE);
         font.draw(batch, layout, cx - layout.width / 2, titleY);
 
-        // ── DIVIDER ─────────────────────────────────────────────────
+
         font.setColor(0.8f, 0.2f, 0.2f, 1f);
         layout.setText(font, "────────────────────────────");
         font.draw(batch, layout, cx - layout.width / 2, worldH * 0.74f);
 
-        // ── CONTROLS header ─────────────────────────────────────────
+
         float slide = MathUtils.clamp(slideTimer / SLIDE_DURATION, 0f, 1f);
         float slideOffsetX = (1f - slide) * -300f;
 

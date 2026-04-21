@@ -47,7 +47,7 @@ public class Samurai {
 
     private boolean isHit = false;
 
-    //
+
     public Samurai(float x, float y, Controls controls, SamuraiAnimator animator) {
         this.x = x;
         this.y = y;
