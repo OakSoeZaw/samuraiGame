@@ -42,6 +42,8 @@ public class GameScreen implements Screen {
     private static final float SPAWN_INTERVAL = 3f;
     private Texture enemyRunTex, enemyAttackTex, enemyDeathTex, enemyIdleTex, enemyJumpTex;
 
+    private Texture player1HitTex, player2HitTex, enemyHitTex;
+
     private final Array<Texture> backgroundTextures = loadBackgroundTextures();
     private final Animation<TextureRegion> backgroundAnimation = buildBackgroundAnimation();
     private float stateTime = 0f;
@@ -89,25 +91,26 @@ public class GameScreen implements Screen {
         player1RunTex = new Texture("p1_run.png");
         player1DeathTex = new Texture("p1_death.png");
         player1JumpTex = new Texture("p1_jump.png");
-        // player1BlockTex = new Texture("p1_block.png");
+        player1HitTex = new Texture("p1_hit.png");
 
         player2AttackTex = new Texture("p2_attack.png");
         player2IdleTex = new Texture("p2_idle.png");
         player2RunTex = new Texture("p2_run.png");
         player2DeathTex = new Texture("p2_death.png");
         player2JumpTex = new Texture("p2_jump.png");
-        // player2BlockTex = new Texture("p2_block.png");
+        player2HitTex = new Texture("p2_hit.png");
 
         enemyRunTex = new Texture("enemy_run.png");
         enemyAttackTex = new Texture("enemy_attack.png");
         enemyDeathTex = new Texture("enemy_death.png");
         enemyIdleTex = new Texture("enemy_idle.png");
         enemyJumpTex = new Texture("enemy_jump.png");
+        enemyHitTex = new Texture("enemy_hit.png");
 
         animator1 = new SamuraiAnimator(player1RunTex, player1AttackTex, player1DeathTex, player1IdleTex,
-                player1JumpTex);
+                player1JumpTex, player1HitTex);
         animator2 = new SamuraiAnimator(player2RunTex, player2AttackTex, player2DeathTex, player2IdleTex,
-                player2JumpTex);
+                player2JumpTex, player2HitTex);
 
         player1 = new Samurai(100, 20, controls1, animator1);
         player2 = new Samurai(300, 20, controls2, animator2);
@@ -197,7 +200,7 @@ public class GameScreen implements Screen {
         Samurai target = fromLeft ? player1 : player2;
 
         SamuraiAnimator enemyAnimator = new SamuraiAnimator(enemyRunTex, enemyAttackTex, enemyDeathTex, enemyIdleTex,
-                enemyJumpTex);
+                enemyJumpTex, enemyHitTex);
         enemies.add(new Enemy(spanwX, 20f, enemyAnimator, target));
     }
 
@@ -324,6 +327,9 @@ public class GameScreen implements Screen {
         enemyDeathTex.dispose();
         enemyIdleTex.dispose();
         enemyJumpTex.dispose();
+        player1HitTex.dispose();
+        player2HitTex.dispose();
+        enemyHitTex.dispose();
 
         backgroundTextures.forEach(Texture::dispose);
 

@@ -6,7 +6,7 @@ import com.badlogic.gdx.math.Rectangle;
 public class Enemy {
 
     public enum State {
-        RUNNING, ATTACKING, DYING
+        RUNNING, ATTACKING, DYING, HIT
     };
 
     private State currState;
@@ -14,6 +14,9 @@ public class Enemy {
     private float x, y;
     private float speed;
     private float width, height;
+
+    private float hitTimer = 0f;
+    private static final float HIT_DURATION = 0.3f;
 
     private SamuraiAnimator animator;
     private Rectangle hitBox;
@@ -70,6 +73,8 @@ public class Enemy {
         }
 
         float distToTarget = Math.abs(target.x - this.x);
+        if (currState == State.HIT)
+            return;
 
         if (distToTarget > ATTACK_RANGE) {
             if (target.x > this.x)
@@ -79,6 +84,14 @@ public class Enemy {
             setState(State.RUNNING);
         } else {
             handleAttack(delta);
+        }
+
+        if (hitTimer > 0) {
+            hitTimer -= delta;
+            if (hitTimer <= 0 && isAlive) {
+
+                setState(State.RUNNING);
+            }
         }
 
         updateHitBoxes();
@@ -121,6 +134,8 @@ public class Enemy {
         health -= damage;
         canTakeDamage = false;
         damageCooldownTimer = DAMAGE_COOLDOWN;
+        hitTimer = HIT_DURATION;
+        setState(State.HIT);
 
         if (health <= 0) {
             health = 0;

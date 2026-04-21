@@ -7,7 +7,7 @@ import com.badlogic.gdx.math.MathUtils;
 public class Samurai {
 
     public enum State {
-        IDLE, RUNNING, DYING, ATTACKING, JUMPING
+        IDLE, RUNNING, DYING, ATTACKING, JUMPING, HIT
     };
 
     public float x, y;
@@ -19,7 +19,8 @@ public class Samurai {
     public boolean facingLeft = false;
     private boolean isAttacking;
     private boolean isAlive;
-    private boolean isBlocking;
+    private float hitTimer = 0f;
+    private static final float HIT_DURATION = 0.3f;
 
     private boolean isAttackActive;
 
@@ -43,6 +44,8 @@ public class Samurai {
 
     private float damageCooldownTimer = 0f;
     private static final float DAMAGE_COOLDOWN = 0.5f;
+
+    private boolean isHit = false;
 
     //
     public Samurai(float x, float y, Controls controls, SamuraiAnimator animator) {
@@ -77,6 +80,14 @@ public class Samurai {
             return;
         }
 
+        if (hitTimer > 0) {
+            hitTimer -= delta;
+            if (hitTimer <= 0) {
+                isHit = false;
+                setCurrentState(State.IDLE);
+            }
+        }
+
         handleMovement(delta);
         handleAttack(delta);
         updateHitBox();
@@ -84,7 +95,7 @@ public class Samurai {
     }
 
     private void handleMovement(float delta) {
-        if (!isAlive || isAttacking)
+        if (!isAlive || isAttacking || isHit)
             return;
 
         // horizontal movement
@@ -166,11 +177,14 @@ public class Samurai {
         health -= damage;
         canTakeDamage = false;
         damageCooldownTimer = DAMAGE_COOLDOWN;
-        System.out.println("player took damage");
+        hitTimer = HIT_DURATION;
+        isHit = true;   
+        setCurrentState(State.HIT);
 
         if (health <= 0) {
             health = 0;
             isAlive = false;
+            isHit = false;          
             setCurrentState(State.DYING);
         }
     }
