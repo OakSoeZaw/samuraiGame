@@ -35,6 +35,13 @@ public class GameScreen implements Screen {
     private Texture player1JumpTex, player1BlockTex;
     private Texture player2JumpTex, player2BlockTex;
 
+    // Enemies
+    private Array<Enemy> enemies = new Array<>();
+    private int spawnCount = 0;
+    private float spawnTimer = 0f;
+    private static final float SPAWN_INTERVAL = 3f;
+    private Texture enemyRunTex, enemyAttackTex, enemyDeathTex, enemyIdleTex, enemyJumpTex;
+
     private final Array<Texture> backgroundTextures = loadBackgroundTextures();
     private final Animation<TextureRegion> backgroundAnimation = buildBackgroundAnimation();
     private float stateTime = 0f;
@@ -56,6 +63,7 @@ public class GameScreen implements Screen {
     private SamuraiAnimator animator1;
     private SamuraiAnimator animator2;
 
+    private boolean winnerDecided = false;
     boolean P1winner = false;// if false 2 is winner
 
     public GameScreen(SamuraiGame game) {
@@ -89,6 +97,12 @@ public class GameScreen implements Screen {
         player2DeathTex = new Texture("p2_death.png");
         player2JumpTex = new Texture("p2_jump.png");
         // player2BlockTex = new Texture("p2_block.png");
+
+        enemyRunTex = new Texture("enemy_run.png");
+        enemyAttackTex = new Texture("enemy_attack.png");
+        enemyDeathTex = new Texture("enemy_death.png");
+        enemyIdleTex = new Texture("enemy_idle.png");
+        enemyJumpTex = new Texture("enemy_jump.png");
 
         animator1 = new SamuraiAnimator(player1RunTex, player1AttackTex, player1DeathTex, player1IdleTex,
                 player1JumpTex);
@@ -155,9 +169,36 @@ public class GameScreen implements Screen {
         player1.update(delta);
         player2.update(delta);
 
+        spawnTimer += delta;
+        if (spawnTimer >= SPAWN_INTERVAL && player1.isAlive() && player2.isAlive()) {
+            spawnTimer = 0f;
+            spawnEnemy();
+        }
+
+        for (Enemy e : enemies)
+            e.update(delta);
+        for (int i = enemies.size - 1; i >= 0; i--) {
+            Enemy e = enemies.get(i);
+            if (!e.isAlive() && e.isDeathFinished()) {
+                enemies.removeIndex(i);
+            }
+        }
+
         checkGameOver();
         checkCombat();
 
+    }
+
+    private void spawnEnemy() {
+        boolean fromLeft = spawnCount % 2 == 0;
+        spawnCount++;
+
+        float spanwX = fromLeft ? -50f : 690f;
+        Samurai target = fromLeft ? player1 : player2;
+
+        SamuraiAnimator enemyAnimator = new SamuraiAnimator(enemyRunTex, enemyAttackTex, enemyDeathTex, enemyIdleTex,
+                enemyJumpTex);
+        enemies.add(new Enemy(spanwX, 20f, enemyAnimator, target));
     }
 
     private void checkCombat() {
@@ -171,13 +212,28 @@ public class GameScreen implements Screen {
                 player2.takeDamage(20);
             }
         }
+
+        for (Enemy e : enemies) {
+            if (e.isAttackActive()) {
+                if (player1.isHitBy(e.getAttackHitBox()))
+                    player1.takeDamage(10);
+                if (player2.isHitBy(e.getAttackHitBox()))
+                    player2.takeDamage(10);
+            }
+            if (player1.isAttackActive() && e.isHitBy(player1.getAttackHitBox()))
+                e.takeDamage(20);
+            if (player2.isAttackActive() && e.isHitBy(player2.getAttackHitBox()))
+                e.takeDamage(20);
+        }
+
     }
 
     private void checkGameOver() {
         if (!player1.isAlive() || !player2.isAlive()) {
 
-            if (player1.isAlive()) {
-                P1winner = true;
+            if (!winnerDecided) {
+                winnerDecided = true;
+                P1winner = player1.isAlive();
             }
             boolean p1DeathDone = !player1.isAlive() ? animator1.isDeathAnimationFinished() : true;
             boolean p2DeathDone = !player2.isAlive() ? animator2.isDeathAnimationFinished() : true;
@@ -210,6 +266,17 @@ public class GameScreen implements Screen {
         }
         batch.draw(frame1, player1.x - 32, player1.y);
         batch.draw(frame2, player2.x - 32, player2.y);
+
+        for (Enemy e : enemies) {
+            TextureRegion eFrame = e.getFrame();
+
+            if (e.isFacingLeft() && !eFrame.isFlipX())
+                eFrame.flip(true, false);
+            else if (!e.isFacingLeft() && eFrame.isFlipX())
+                eFrame.flip(true, false);
+
+            batch.draw(eFrame, e.getX() - 32, e.getY());
+        }
     }
 
     private void drawHUD() {
@@ -251,6 +318,13 @@ public class GameScreen implements Screen {
         player2RunTex.dispose();
         player2AttackTex.dispose();
         player2DeathTex.dispose();
+
+        enemyRunTex.dispose();
+        enemyAttackTex.dispose();
+        enemyDeathTex.dispose();
+        enemyIdleTex.dispose();
+        enemyJumpTex.dispose();
+
         backgroundTextures.forEach(Texture::dispose);
 
         shapeRenderer.dispose();
