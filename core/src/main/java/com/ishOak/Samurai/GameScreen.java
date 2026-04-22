@@ -4,133 +4,266 @@ import com.badlogic.gdx.Screen;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Input;
 import com.badlogic.gdx.graphics.GL20;
+import com.badlogic.gdx.graphics.OrthographicCamera;
 import com.badlogic.gdx.graphics.Texture;
-import com.badlogic.gdx.graphics.g2d.Animation;
-import com.badlogic.gdx.graphics.g2d.BitmapFont;
-import com.badlogic.gdx.graphics.g2d.SpriteBatch;
-import com.badlogic.gdx.graphics.g2d.TextureRegion;
+import com.badlogic.gdx.graphics.g2d.*;
+import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
+import com.badlogic.gdx.math.Rectangle;
+import com.badlogic.gdx.utils.Array;
+import com.badlogic.gdx.utils.viewport.FitViewport;
 
-
-public class GameScreen implements Screen{
+public class GameScreen implements Screen {
 
     private SamuraiGame game;
     private SpriteBatch batch;
     private BitmapFont font;
+    private ShapeRenderer shapeRenderer;
+    private OrthographicCamera camera;
+    private FitViewport viewport;
 
-
-    //Game State
+    // Game State
     public boolean gameOver;
+    private float gameOverTimer;
 
-    //Textures
+    private int stage; // 1 or 2
+    private int enemyKillCount = 0;
+    private final GlyphLayout layout = new GlyphLayout();
+
+    // Textures
     private Texture bgTexture;
     private Texture player1IdleTex, player1RunTex, player1AttackTex, player1DeathTex;
     private Texture player2IdleTex, player2RunTex, player2AttackTex, player2DeathTex;
+    private Texture player1JumpTex, player1BlockTex;
+    private Texture player2JumpTex, player2BlockTex;
 
-    //Players
+    // Enemies
+    private Array<Enemy> enemies = new Array<>();
+    private int spawnCount = 0;
+    private float spawnTimer = 0f;
+    private static final float SPAWN_INTERVAL = 3f;
+    private Texture enemyRunTex, enemyAttackTex, enemyDeathTex, enemyIdleTex, enemyJumpTex;
+
+    private Texture player1HitTex, player2HitTex, enemyHitTex;
+
+    private  Array<Texture> backgroundTextures;
+    private Animation<TextureRegion> backgroundAnimation;
+
+    private float stateTime = 0f;
+
+    private Animation<TextureRegion> buildBackgroundAnimation() {
+        Array<TextureRegion> regions = new Array<>();
+        for (Texture t : backgroundTextures) {
+            regions.add(new TextureRegion(t));
+        }
+        Animation<TextureRegion> anim = new Animation<>(1 / 5f, regions);
+        anim.setPlayMode(Animation.PlayMode.LOOP);
+        return anim;
+    }
+
+    // Players
     private Samurai player1;
     private Samurai player2;
 
     private SamuraiAnimator animator1;
     private SamuraiAnimator animator2;
 
-    boolean winner=false;//if false 2 is winner
+    private boolean winnerDecided = false;
+    boolean P1winner = false;// if false 2 is winner
 
-    public GameScreen(SamuraiGame game){
+    public GameScreen(SamuraiGame game,  int stage) {
         this.game = game;
         this.batch = game.getBatch();
         this.font = game.getFont();
+        this.stage=stage;
     }
 
     @Override
-    public void show(){
+    public void show() {
         // player 1 with WASD and F for attack
-        Controls controls1 = new Controls(Input.Keys.W, Input.Keys.S, Input.Keys.A, Input.Keys.D, Input.Keys.F, Input.Keys.G);
+        Controls controls1 = new Controls(Input.Keys.W, Input.Keys.S, Input.Keys.A, Input.Keys.D, Input.Keys.F);
         // player 2 with arrow keys and L to attack
-        Controls controls2 = new Controls(Input.Keys.UP, Input.Keys.DOWN, Input.Keys.LEFT, Input.Keys.RIGHT, Input.Keys.L, Input.Keys.K);
+        Controls controls2 = new Controls(Input.Keys.UP, Input.Keys.DOWN, Input.Keys.LEFT, Input.Keys.RIGHT,
+                Input.Keys.L);
 
-        //load background texture
-        bgTexture=new Texture("bdg.png");
+        // load background texture
+        bgTexture = new Texture("bdg.png");
 
-        //load texture for player1
+        // load texture for player1
         player1AttackTex = new Texture("p1_attack.png");
         player1IdleTex = new Texture("p1_idle.png");
         player1RunTex = new Texture("p1_run.png");
         player1DeathTex = new Texture("p1_death.png");
+        player1JumpTex = new Texture("p1_jump.png");
+        player1HitTex = new Texture("p1_hit.png");
 
         player2AttackTex = new Texture("p2_attack.png");
         player2IdleTex = new Texture("p2_idle.png");
         player2RunTex = new Texture("p2_run.png");
         player2DeathTex = new Texture("p2_death.png");
+        player2JumpTex = new Texture("p2_jump.png");
+        player2HitTex = new Texture("p2_hit.png");
 
-        animator1 = new SamuraiAnimator(player1RunTex, player1AttackTex, player1DeathTex, player1IdleTex);
-        animator2 = new SamuraiAnimator(player2RunTex, player2AttackTex,player2DeathTex, player2IdleTex);
+        enemyRunTex = new Texture("enemy_run.png");
+        enemyAttackTex = new Texture("enemy_attack.png");
+        enemyDeathTex = new Texture("enemy_death.png");
+        enemyIdleTex = new Texture("enemy_idle.png");
+        enemyJumpTex = new Texture("enemy_jump.png");
+        enemyHitTex = new Texture("enemy_hit.png");
+
+        animator1 = new SamuraiAnimator(player1RunTex, player1AttackTex, player1DeathTex, player1IdleTex,
+                player1JumpTex, player1HitTex);
+        animator2 = new SamuraiAnimator(player2RunTex, player2AttackTex, player2DeathTex, player2IdleTex,
+                player2JumpTex, player2HitTex);
 
         player1 = new Samurai(100, 20, controls1, animator1);
         player2 = new Samurai(300, 20, controls2, animator2);
 
+        camera = new OrthographicCamera();
+        viewport = new FitViewport(640, 600, camera);
+
+        shapeRenderer = new ShapeRenderer();
+
+        backgroundTextures = loadBackgroundTextures();
+        backgroundAnimation = buildBackgroundAnimation();
+
         gameOver = false;
+        gameOverTimer = 0f;
 
     }
 
     @Override
-    public void render(float delta){
-        Gdx.gl.glClearColor(0, 0, 0 , 1);
+    public void render(float delta) {
+        Gdx.gl.glClearColor(0, 0, 0, 1);
         Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT);
+
+        viewport.apply();
+        camera.update();
+        batch.setProjectionMatrix(camera.combined);
+        shapeRenderer.setProjectionMatrix(camera.combined);
 
         update(delta);
         batch.begin();
         drawBackground();
         drawPlayers();
-        drawHUD();
         batch.end();
 
-        if(gameOver){
-            game.setScreen(new GameOverScreen(game,winner));
+        drawHUD();
+
+        if (gameOver) {
+            game.setScreen(new GameOverScreen(game, P1winner));
         }
     }
 
-    private void drawBackground() {
-        batch.draw(bgTexture,0,0);
+    private Array<Texture> loadBackgroundTextures() {
+        Array<Texture> textures = new Array<Texture>(24);
+        if (stage == 1) {
+            for (int i = 0; i <= 7; i++)
+                textures.add(new Texture(Gdx.files.internal(String.format("night_frame_%03d.png", i))));
+        }
+        else {
+            for (int i = 0; i <= 23; i++)
+                textures.add(new Texture(Gdx.files.internal(String.format("frame_%02d.png", i))));
+        }
+        return textures;
     }
 
-    private void update(float delta){
-        if (gameOver) return;
+    private void drawBackground() {
+        TextureRegion frame = backgroundAnimation.getKeyFrame(stateTime);
+        batch.draw(frame, 0, 0, 640, 600); // fixed size, not Gdx.graphics
+    }
+
+    private void update(float delta) {
+        animator1.update(delta);
+        animator2.update(delta);
+        stateTime += delta;
+
+        if (gameOver)
+            return;
 
         player1.update(delta);
         player2.update(delta);
 
-        animator1.update(delta);
-        animator2.update(delta);
+        spawnTimer += delta;
+        if (spawnTimer >= SPAWN_INTERVAL && player1.isAlive() && player2.isAlive()) {
+            spawnTimer = 0f;
+            spawnEnemy();
+        }
 
-        checkCombat();
+        for (Enemy e : enemies)
+            e.update(delta);
+        for (int i = enemies.size - 1; i >= 0; i--) {
+            Enemy e = enemies.get(i);
+            if (!e.isAlive() && e.isDeathFinished()) {
+                enemyKillCount++;
+                enemies.removeIndex(i);
+            }
+        }
+
         checkGameOver();
+        checkCombat();
+
     }
 
-    private void checkCombat(){
-        if(player2.isAttackActive()){
-            if(player1.isHitBy(player2.getAttackHitBox())){
+    private void spawnEnemy() {
+        boolean fromLeft = spawnCount % 2 == 0;
+        spawnCount++;
+        float spawnX = fromLeft ? -50f : 690f;
+
+        SamuraiAnimator enemyAnimator = new SamuraiAnimator(
+            enemyRunTex, enemyAttackTex, enemyDeathTex,
+            enemyIdleTex, enemyJumpTex, enemyHitTex);
+        enemies.add(new Enemy(spawnX, 20f, enemyAnimator, player1, player2)); // pass both
+    }
+
+    private void checkCombat() {
+        if (player2.isAttackActive()) {
+            if (player1.isHitBy(player2.getAttackHitBox())) {
                 player1.takeDamage(20);
             }
         }
-        if(player1.isAttackActive()){
-            if(player2.isHitBy(player1.getAttackHitBox())){
+        if (player1.isAttackActive()) {
+            if (player2.isHitBy(player1.getAttackHitBox())) {
                 player2.takeDamage(20);
             }
         }
+
+        for (Enemy e : enemies) {
+            if (e.isAttackActive()) {
+                if (player1.isHitBy(e.getAttackHitBox()))
+                    player1.takeDamage(10);
+                if (player2.isHitBy(e.getAttackHitBox()))
+                    player2.takeDamage(10);
+            }
+            if (player1.isAttackActive() && e.isHitBy(player1.getAttackHitBox()))
+                e.takeDamage(20);
+            if (player2.isAttackActive() && e.isHitBy(player2.getAttackHitBox()))
+                e.takeDamage(20);
+        }
+
     }
 
-    private void checkGameOver(){
-        if(!player1.isAlive() || !player2.isAlive()){
-            gameOver = true;
-            if(player1.isAlive()){
-              winner = true;
+    private void checkGameOver() {
+        if (!player1.isAlive() || !player2.isAlive()) {
+
+            if (!winnerDecided) {
+                winnerDecided = true;
+                P1winner = player1.isAlive();
             }
-            // need to make gameOver Screen;
-            System.out.println("Game ended");
+            boolean p1DeathDone = !player1.isAlive() ? animator1.isDeathAnimationFinished() : true;
+            boolean p2DeathDone = !player2.isAlive() ? animator2.isDeathAnimationFinished() : true;
+
+            if (p1DeathDone && p2DeathDone) {
+                gameOverTimer += Gdx.graphics.getDeltaTime();
+                if (gameOverTimer >= 1f) {
+                    gameOver = true;
+                    System.out.println("Game Over");
+                }
+            }
+
         }
     }
 
-    private void drawPlayers(){
+    private void drawPlayers() {
         TextureRegion frame1 = animator1.getFrame(player1.getState());
         TextureRegion frame2 = animator2.getFrame(player2.getState());
 
@@ -145,16 +278,61 @@ public class GameScreen implements Screen{
         } else if (!player2.facingLeft && frame2.isFlipX()) {
             frame2.flip(true, false);
         }
-        batch.draw(animator1.getFrame(player1.getState()), player1.x, player1.y);
-        batch.draw(animator2.getFrame(player2.getState()), player2.x, player2.y);
+        batch.draw(frame1, player1.x - 16, player1.y);
+        batch.draw(frame2, player2.x - 16, player2.y);
+
+        for (Enemy e : enemies) {
+            TextureRegion eFrame = e.getFrame();
+
+            if (e.isFacingLeft() && !eFrame.isFlipX())
+                eFrame.flip(true, false);
+            else if (!e.isFacingLeft() && eFrame.isFlipX())
+                eFrame.flip(true, false);
+
+            batch.draw(eFrame, e.getX() - 32, e.getY());
+        }
     }
 
-    private void drawHUD(){
-        font.draw(batch, "HP:" + (int) player1.getHeatlh(), 20, 580);
-        font.draw(batch, "HP:" + (int) player2.getHeatlh(), 620, 580);
+    private void drawHUD() {
+        float maxHealth = 100f;
+        float barWidth = 200f;
+        float barHeight = 15f;
+        float barY = 575f;
+        float p1BarX = 20f;
+        float p2BarX = 420f;
+
+        shapeRenderer.begin(ShapeRenderer.ShapeType.Filled);
+
+        // background of bars
+        shapeRenderer.setColor(0.3f, 0.3f, 0.3f, 1);
+        shapeRenderer.rect(p1BarX, barY, barWidth, barHeight);
+        shapeRenderer.rect(p2BarX, barY, barWidth, barHeight);
+
+        // green fill
+        shapeRenderer.setColor(0, 1, 0, 1);
+        shapeRenderer.rect(p1BarX, barY, barWidth * (player1.getHealth() / maxHealth), barHeight);
+        shapeRenderer.rect(p2BarX, barY, barWidth * (player2.getHealth() / maxHealth), barHeight);
+
+        shapeRenderer.end();
+
+        // text elements
+        batch.begin();
+
+        // player name labels above bars
+        font.setColor(1, 1, 1, 1);
+
+        layout.setText(font, "PLAYER 1");
+        font.draw(batch, layout, p1BarX, barY + barHeight + 15);
+
+        layout.setText(font, "PLAYER 2");
+        font.draw(batch, layout, p2BarX, barY + barHeight + 15);
+
+        // kill counter centered at top
+        layout.setText(font, "Kills: " + enemyKillCount);
+        font.draw(batch, layout, 640 / 2f - layout.width / 2, barY + barHeight + 15);
+
+        batch.end();
     }
-
-
 
     @Override
     public void hide() {
@@ -167,15 +345,40 @@ public class GameScreen implements Screen{
         player1RunTex.dispose();
         player1AttackTex.dispose();
         player1DeathTex.dispose();
+        player1JumpTex.dispose();
 
+        player2JumpTex.dispose();
         player2IdleTex.dispose();
         player2RunTex.dispose();
         player2AttackTex.dispose();
         player2DeathTex.dispose();
+
+        enemyRunTex.dispose();
+        enemyAttackTex.dispose();
+        enemyDeathTex.dispose();
+        enemyIdleTex.dispose();
+        enemyJumpTex.dispose();
+        player1HitTex.dispose();
+        player2HitTex.dispose();
+        enemyHitTex.dispose();
+
+        backgroundTextures.forEach(Texture::dispose);
+
+        shapeRenderer.dispose();
+
     }
 
-    @Override public void resize(int width, int height) {}
-    @Override public void pause() {}
-    @Override public void resume() {}
+    @Override
+    public void resize(int width, int height) {
+        viewport.update(width, height, true);
+    }
+
+    @Override
+    public void pause() {
+    }
+
+    @Override
+    public void resume() {
+    }
 
 }
