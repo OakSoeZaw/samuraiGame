@@ -122,11 +122,11 @@ public class GameOverScreen extends ScreenAdapter {
 
         String winnerText = winner ? "⚔  PLAYER 1  WINS  ⚔" : "⚔  PLAYER 2  WINS  ⚔";
         Color winnerColor = winner
-            ? new Color(0.4f, 0.8f, 1f, slide)   // P1 blue
-            : new Color(1f, 0.5f, 0.3f, slide);   // P2 orange
+            ? new Color(0f,100f,0f, slide)   // P1 blue
+            : new Color(0f,100f,0, slide);   // P2 orange
 
 
-        font.setColor(0f, 0f, 0f, slide * 0.8f);
+        font.setColor(0f, 100f, 0f, slide * 0.8f);
         layout.setText(font, winnerText);
         font.draw(batch, layout, cx - layout.width / 2 + slideOffsetX + 3, worldH * 0.55f - 3);
 

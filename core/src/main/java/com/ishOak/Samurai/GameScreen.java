@@ -45,12 +45,13 @@ public class GameScreen implements Screen {
 
     private Texture player1HitTex, player2HitTex, enemyHitTex;
 
-    private final Array<Texture> backgroundTextures = loadBackgroundTextures();
-    private final Animation<TextureRegion> backgroundAnimation = buildBackgroundAnimation();
+    private  Array<Texture> backgroundTextures;
+    private Animation<TextureRegion> backgroundAnimation;
+
     private float stateTime = 0f;
 
     private Animation<TextureRegion> buildBackgroundAnimation() {
-        Array<TextureRegion> regions = new Array<>(24);
+        Array<TextureRegion> regions = new Array<>();
         for (Texture t : backgroundTextures) {
             regions.add(new TextureRegion(t));
         }
@@ -122,6 +123,9 @@ public class GameScreen implements Screen {
 
         shapeRenderer = new ShapeRenderer();
 
+        backgroundTextures = loadBackgroundTextures();
+        backgroundAnimation = buildBackgroundAnimation();
+
         gameOver = false;
         gameOverTimer = 0f;
 
@@ -155,7 +159,8 @@ public class GameScreen implements Screen {
         if (stage == 1) {
             for (int i = 0; i <= 7; i++)
                 textures.add(new Texture(Gdx.files.internal(String.format("night_frame_%03d.png", i))));
-        } else {
+        }
+        else {
             for (int i = 0; i <= 23; i++)
                 textures.add(new Texture(Gdx.files.internal(String.format("frame_%02d.png", i))));
         }
