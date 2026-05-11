@@ -83,7 +83,7 @@ public class GameOverScreen extends ScreenAdapter {
             return;
         }
 
-        ScreenUtils.clear(new Color(0.05f, 0f, 0.1f, 1f)); // deep purple-black
+        ScreenUtils.clear(new Color(0.05f, 0f, 0.1f, 1f));
 
         viewport.apply();
         batch.setProjectionMatrix(viewport.getCamera().combined);
@@ -99,7 +99,7 @@ public class GameOverScreen extends ScreenAdapter {
         }
 
 
-        float pulse = 1f + MathUtils.sin(timer * 3f) * 0.04f; // subtle scale pulse via alpha
+        float pulse = 1f + MathUtils.sin(timer * 3f) * 0.04f;
         float pulseAlpha = 0.75f + MathUtils.sin(timer * 3f) * 0.25f;
 
 
@@ -118,31 +118,26 @@ public class GameOverScreen extends ScreenAdapter {
 
 
         float slide = MathUtils.clamp(slideTimer / SLIDE_DURATION, 0f, 1f);
-        float slideOffsetX = (1f - slide) * 400f; // slides in from right
+        float slideOffsetX = (1f - slide) * 400f;
 
         String winnerText = winner ? "⚔  PLAYER 1  WINS  ⚔" : "⚔  PLAYER 2  WINS  ⚔";
         Color winnerColor = winner
-            ? new Color(0.4f, 0.8f, 1f, slide)   // P1 blue
-            : new Color(1f, 0.5f, 0.3f, slide);   // P2 orange
-
-
-        font.setColor(0f, 0f, 0f, slide * 0.8f);
-        layout.setText(font, winnerText);
-        font.draw(batch, layout, cx - layout.width / 2 + slideOffsetX + 3, worldH * 0.55f - 3);
+            ? new Color(1.0f, 0.5f, 0f, slide)
+            : new Color(0f, 0.9f, 0.9f, slide) ;
 
 
         font.setColor(winnerColor);
-        font.draw(batch, layout, cx - layout.width / 2 + slideOffsetX, worldH * 0.55f);
-
+        layout.setText(font, winnerText);
+        font.draw(batch, layout, cx - layout.width / 2 + slideOffsetX + 3, worldH * 0.55f - 3);
 
         float crownBob = MathUtils.sin(timer * 2.5f) * 5f;
-        font.setColor(1f, 0.85f, 0f, slide); // gold
+        font.setColor(1f, 0.85f, 0f, slide);
         layout.setText(font, "♛");
         font.draw(batch, layout, cx - layout.width / 2, worldH * 0.63f + crownBob);
 
 
         if (showFlash) {
-            font.setColor(1f, 0.8f, 0f, 0.3f); // glow
+            font.setColor(1f, 0.8f, 0f, 0.3f);
             layout.setText(font, "▶  PRESS ENTER TO PLAY AGAIN  ◀");
             font.draw(batch, layout, cx - layout.width / 2 + 2, worldH * 0.25f - 2);
 

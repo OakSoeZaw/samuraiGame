@@ -45,8 +45,8 @@ public class GameScreen implements Screen {
 
     private Texture player1HitTex, player2HitTex, enemyHitTex;
 
-    private final Array<Texture> backgroundTextures = loadBackgroundTextures();
-    private final Animation<TextureRegion> backgroundAnimation = buildBackgroundAnimation();
+    private Array<Texture> backgroundTextures ;
+    private  Animation<TextureRegion> backgroundAnimation;
     private float stateTime = 0f;
 
     private Animation<TextureRegion> buildBackgroundAnimation() {
@@ -109,6 +109,9 @@ public class GameScreen implements Screen {
         enemyJumpTex = new Texture("enemy_jump.png");
         enemyHitTex = new Texture("enemy_hit.png");
 
+        backgroundTextures = loadBackgroundTextures();
+        backgroundAnimation = buildBackgroundAnimation();
+
         animator1 = new SamuraiAnimator(player1RunTex, player1AttackTex, player1DeathTex, player1IdleTex,
                 player1JumpTex, player1HitTex);
         animator2 = new SamuraiAnimator(player2RunTex, player2AttackTex, player2DeathTex, player2IdleTex,
@@ -164,7 +167,7 @@ public class GameScreen implements Screen {
 
     private void drawBackground() {
         TextureRegion frame = backgroundAnimation.getKeyFrame(stateTime);
-        batch.draw(frame, 0, 0, 640, 600); // fixed size, not Gdx.graphics
+        batch.draw(frame, 0, 0, 640, 600);
     }
 
     private void update(float delta) {

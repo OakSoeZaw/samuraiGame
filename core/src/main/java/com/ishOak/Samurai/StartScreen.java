@@ -102,17 +102,17 @@ public class StartScreen extends ScreenAdapter {
         float slide = MathUtils.clamp(slideTimer / SLIDE_DURATION, 0f, 1f);
         float slideOffsetX = (1f - slide) * -300f;
 
-        font.setColor(1f, 0.85f, 0.2f, 1f); // gold
+        font.setColor(1f, 0.85f, 0.2f, 1f);
         layout.setText(font, "CONTROLS");
         font.draw(batch, layout, cx - layout.width / 2 + slideOffsetX, worldH * 0.68f);
 
         //  P1 controls
-        font.setColor(0.4f, 0.8f, 1f, slide); // blue, fades in with slide
+        font.setColor(0.4f, 0.8f, 1f, slide);
         layout.setText(font, "P1  |  A / D — Move   W — Jump   F — Attack");
         font.draw(batch, layout, cx - layout.width / 2 + slideOffsetX, worldH * 0.60f);
 
         // P2 controls
-        font.setColor(1f, 0.5f, 0.3f, slide); // orange, fades in with slide
+        font.setColor(1f, 0.5f, 0.3f, slide);
         layout.setText(font, "P2  |  ← / → — Move   ↑ — Jump   L — Attack");
         font.draw(batch, layout, cx - layout.width / 2 + slideOffsetX, worldH * 0.52f);
 
